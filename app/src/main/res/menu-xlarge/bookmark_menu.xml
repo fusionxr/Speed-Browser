@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item
+        android:id="@+id/bookmarkEdit"
+        android:title="@string/bookmark_edit"
+        android:visible="true"/>
+    <item
+        android:id="@+id/bookmarkDelete"
+        android:title="@string/bookmark_delete"
+        android:visible="true"/>
+
+</menu>

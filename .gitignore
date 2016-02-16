@@ -1,47 +1,34 @@
+# Android Studio
+*.jks
+.DS_Store
+/local.properties
+/.idea/workspace.xml
+/build
+
+# External tool builders
+.externalToolBuilders/
+
+# CDT-specific
+.cproject
+
+# PDT-specific
+.buildpath
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
 
-# Folder config file
-Desktop.ini
+# Local configuration file (sdk path, etc)
+local.properties
+gradle.properties
+.directory
 
-# Recycle Bin used on file shares
-$RECYCLE.BIN/
+# Intellij project files
+*.iml
+*.ipr
+*.iws
+.idea/
 
-# Windows Installer files
-*.cab
-*.msi
-*.msm
-*.msp
-
-# Windows shortcuts
-*.lnk
-
-# =========================
-# Operating System Files
-# =========================
-
-# OSX
-# =========================
-
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Thumbnails
-._*
-
-# Files that might appear in the root of a volume
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-
-# Directories potentially created on remote AFP share
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk
+# Gradle
+build
+.gradle

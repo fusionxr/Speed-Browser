@@ -1,0 +1,42 @@
+apply plugin: 'com.android.application'
+
+android {
+    signingConfigs {
+        release {
+            keyAlias 'fusionxr'
+            keyPassword '526444388555'
+            storeFile file('C:/Users/Jay/Desktop/Android/release.keystore')
+            storePassword '526444388555'
+        }
+    }
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+    defaultConfig {
+        applicationId "com.browser.Speed"
+        minSdkVersion 17
+        targetSdkVersion 22
+        versionCode 90
+        versionName "5.0.9"
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles 'proguard-project.txt'
+            zipAlignEnabled true
+        }
+        debug {
+        }
+    }
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    compile 'com.android.support:palette-v7:22.1.1'
+    compile 'com.android.support:appcompat-v7:22.1.1'
+    compile 'com.android.support:design:22.2.1'
+    compile 'org.jsoup:jsoup:1.8.1'
+    compile 'com.android.support:recyclerview-v7:23.1.1'
+}
