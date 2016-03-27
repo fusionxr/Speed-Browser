@@ -31,7 +31,7 @@
     <string name="location">位置情報</string>
     <string name="password">パスワードを記憶する</string>
     <string name="agent">ユーザーエージェント</string>
-    <string name="history">履歴を消去する</string>
+    <string name="clear_history">履歴を消去する</string>
     <string name="email">Email me</string>
     <string name="flash">Adobe Flash</string>
     <string name="mobile">モバイル</string>
@@ -52,11 +52,11 @@
     <string name="title_activity_new_settings">新しい設定</string>
     <string name="action_settings">設定</string>
     <string name="version">アプリケーションのバージョン</string>
-    <string name="cache">終了時にキャッシュを消去する</string>
+    <string name="clear_cache_exit">終了時にキャッシュを消去する</string>
     <string name="reflow">文字を右端で折り返す</string>
     <string name="block">画像を読み込まない</string>
     <string name="window">新しいタブでページを開くことを許可する</string>
-    <string name="cookies">Cookiesを有効にする</string>
+    <string name="enable_cookies">Cookiesを有効にする</string>
     <string name="importbookmarks">他のブラウザからブックマークを読み込む</string>
     <string name="size">文字サイズ</string>
     <string name="recommended">推奨</string>
@@ -128,7 +128,7 @@
     <string name="action_manual">マニュアル</string>
     <string name="action_auto">自動</string>
     <string name="action_follow_me">Contact Me</string>
-    <string name="url_twitter">twitter.com/ACRDevelopment</string>
+    <string name="url_twitter">chemxrs@gmail.com</string>
     <string name="clear_cache">キャッシュを消去する</string>
     <string name="message_cache_cleared">キャッシュを消去しました</string>
     <string name="message_import">ブックマークを読み込みました</string>
@@ -165,7 +165,7 @@
     <string name="folder_default">規定</string>
     <string name="folder_custom">カスタム</string>
     <string name="untitled">Untitled</string>
-    <string name="apache_license">Mozilla Public License v. 2.0</string>
+    <string name="mozilla_license">Mozilla Public License v. 2.0</string>
     <string name="freeware">Freeware</string>
     <string name="android_open_source_project">Android Open Source Project</string>
     <string name="hphosts_ad_server_list">hpHosts Ad Server List</string>
@@ -179,7 +179,7 @@
     <string name="title_file_chooser">File Chooser</string>
     <string name="library_netcipher">NetCipher</string>
     <string name="license_gnu">GNU Lesser General Public License</string>
-    <string name="export_bookmarks">バックアップにブックマークを書き出す</string>
+    <string name="bookmarks_export">バックアップにブックマークを書き出す</string>
     <string name="import_backup">バックアップからブックマークを読み込む</string>
     <string name="bookmark_export_path">ブックマークの書き出し先</string>
     <string name="bookmark_settings">ブックマーク設定</string>

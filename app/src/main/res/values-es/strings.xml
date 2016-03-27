@@ -17,7 +17,7 @@
     <string name="location">Acceder a tu ubicación</string>
     <string name="password">Almacenar contraseñas</string>
     <string name="agent">Agente de usuario</string>
-    <string name="history">Borrar historial</string>
+    <string name="clear_history">Borrar historial</string>
     <string name="email">Envíame un Email</string>
     <string name="flash">Habilitar Adobe Flash</string>
     <string name="mobile">Ver como móvil</string>
@@ -38,11 +38,11 @@
     <string name="title_activity_new_settings">NewSettings</string>
     <string name="action_settings">Ajustes</string>
     <string name="version">Versión</string>
-    <string name="cache">Vaciar caché al salir</string>
+    <string name="clear_cache_exit">Vaciar caché al salir</string>
     <string name="reflow">Activar el Text Reflow</string>
     <string name="block">Bloquear imágenes</string>
     <string name="window">Permitir a los sitios abrir nuesvas ventanas</string>
-    <string name="cookies">Habilitar cookies</string>
+    <string name="enable_cookies">Habilitar cookies</string>
     <string name="importbookmarks">Importar marcadores</string>
     <string name="size">Tamaño de la tipografía</string>
     <string name="recommended">(Recomendado)</string>

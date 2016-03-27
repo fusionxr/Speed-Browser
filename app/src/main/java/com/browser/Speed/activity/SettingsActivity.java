@@ -26,6 +26,7 @@ import android.widget.RelativeLayout;
 
 import com.browser.Speed.constant.Constants;
 //import com.browser.Speed.database.BookmarkActivity;
+import com.browser.Speed.database.DatabaseManager;
 import com.browser.Speed.preference.PreferenceManager;
 import com.browser.Speed.R;
 import com.browser.Speed.utils.Utils;
@@ -37,6 +38,10 @@ public class SettingsActivity extends ThemableSettingsActivity {
 	private PreferenceManager mPreferences;
 	private Context mContext;
 	private Activity mActivity;
+	private RelativeLayout layoutFlash, layoutBlockAds, layoutImages, layoutEnableJS,
+                           layoutOrbot, layoutSwipeTabs, layoutDrawer, layoutToolbar, layoutBookmarks;
+	private CheckBox cbFlash, cbAdblock, cbImages, cbEnablejs, cbOrbot, cbSwipeTabs, cbDrawer, cbToolbar;
+    private boolean mBottomDrawerEnabled;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -63,25 +68,28 @@ public class SettingsActivity extends ThemableSettingsActivity {
 
 		// mPreferences storage
 		mPreferences = PreferenceManager.getInstance();
+        mBottomDrawerEnabled = mPreferences.getBottomDrawerEnabled();
 
 		// initialize UI
-		RelativeLayout layoutFlash = (RelativeLayout) findViewById(R.id.layoutFlash);
-		RelativeLayout layoutBlockAds = (RelativeLayout) findViewById(R.id.layoutAdBlock);
+		layoutFlash = (RelativeLayout) findViewById(R.id.layoutFlash);
+		layoutBlockAds = (RelativeLayout) findViewById(R.id.layoutAdBlock);
 		layoutBlockAds.setEnabled(Constants.FULL_VERSION);
-		RelativeLayout layoutImages = (RelativeLayout) findViewById(R.id.layoutImages);
-		RelativeLayout layoutEnableJS = (RelativeLayout) findViewById(R.id.layoutEnableJS);
-		RelativeLayout layoutOrbot = (RelativeLayout) findViewById(R.id.layoutUseOrbot);
-		RelativeLayout layoutColor = (RelativeLayout) findViewById(R.id.layoutColorMode);
-		RelativeLayout layoutBookmarks = (RelativeLayout) findViewById(R.id.layoutBookmarks);
+		layoutImages = (RelativeLayout) findViewById(R.id.layoutImages);
+		layoutEnableJS = (RelativeLayout) findViewById(R.id.layoutEnableJS);
+		layoutOrbot = (RelativeLayout) findViewById(R.id.layoutUseOrbot);
+        layoutSwipeTabs = (RelativeLayout) findViewById(R.id.layoutSwipeTabs);
+		layoutDrawer = (RelativeLayout) findViewById(R.id.layoutBottomDrawer);
+        layoutToolbar = (RelativeLayout) findViewById(R.id.layoutBottomToolbar);
+		layoutBookmarks = (RelativeLayout) findViewById(R.id.layoutBookmarks);
 
-//		layoutBookmarks.setOnClickListener(new OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				startActivity(new Intent(mContext, BookmarkActivity.class));
-//			}
-//
-//		});
+		layoutBookmarks.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				startActivity(new Intent(mContext, BookmarkActivity.class));
+			}
+
+		});
 
 		if (API >= 19) {
 			mPreferences.setFlashSupport(0);
@@ -90,28 +98,32 @@ public class SettingsActivity extends ThemableSettingsActivity {
 		boolean imagesBool = mPreferences.getBlockImagesEnabled();
 		boolean enableJSBool = mPreferences.getJavaScriptEnabled();
 
-		CheckBox flash = (CheckBox) findViewById(R.id.cbFlash);
-		CheckBox adblock = (CheckBox) findViewById(R.id.cbAdblock);
-		adblock.setEnabled(Constants.FULL_VERSION);
-		CheckBox images = (CheckBox) findViewById(R.id.cbImageBlock);
-		CheckBox enablejs = (CheckBox) findViewById(R.id.cbJavascript);
-		CheckBox orbot = (CheckBox) findViewById(R.id.cbOrbot);
-		CheckBox color = (CheckBox) findViewById(R.id.cbColorMode);
+		cbFlash = (CheckBox) findViewById(R.id.cbFlash);
+		cbAdblock = (CheckBox) findViewById(R.id.cbAdblock);
+		cbAdblock.setEnabled(Constants.FULL_VERSION);
+		cbImages = (CheckBox) findViewById(R.id.cbImageBlock);
+		cbEnablejs = (CheckBox) findViewById(R.id.cbJavascript);
+		cbOrbot = (CheckBox) findViewById(R.id.cbOrbot);
+        cbSwipeTabs = (CheckBox) findViewById(R.id.cbSwipeTabs);
+		cbDrawer = (CheckBox) findViewById(R.id.cbBottomDrawer);
+        cbToolbar = (CheckBox) findViewById(R.id.cbBottomToolbar);
 
-		images.setChecked(imagesBool);
-		enablejs.setChecked(enableJSBool);
+		cbImages.setChecked(imagesBool);
+		cbEnablejs.setChecked(enableJSBool);
 		if (flashNum > 0) {
-			flash.setChecked(true);
+			cbFlash.setChecked(true);
 		} else {
-			flash.setChecked(false);
+			cbFlash.setChecked(false);
 		}
-		adblock.setChecked(mPreferences.getAdBlockEnabled());
-		orbot.setChecked(mPreferences.getUseProxy());
-		color.setChecked(mPreferences.getColorModeEnabled());
+		cbAdblock.setChecked(mPreferences.getAdBlockEnabled());
+		cbOrbot.setChecked(mPreferences.getUseProxy());
+        cbSwipeTabs.setChecked(mPreferences.getSwipeTabsEnabled());
+		cbDrawer.setChecked(mPreferences.getBottomDrawerEnabled());
+        cbToolbar.setChecked(mPreferences.getBottomToolbarEnabled());
+        if (mPreferences.getBottomDrawerEnabled()) layoutToolbar.setVisibility(View.VISIBLE);
 
-		initCheckBox(flash, adblock, images, enablejs, orbot, color);
-		clickListenerForCheckBoxes(layoutFlash, layoutBlockAds, layoutImages, layoutEnableJS,
-				layoutOrbot, layoutColor, flash, adblock, images, enablejs, orbot, color);
+        initCheckBox();
+		clickListenerForCheckBoxes();
 
 		RelativeLayout general = (RelativeLayout) findViewById(R.id.layoutGeneral);
 		RelativeLayout display = (RelativeLayout) findViewById(R.id.layoutDisplay);
@@ -126,110 +138,107 @@ public class SettingsActivity extends ThemableSettingsActivity {
 		about(about);
 	}
 
-	public void clickListenerForCheckBoxes(RelativeLayout layoutFlash,
-			RelativeLayout layoutBlockAds, RelativeLayout layoutImages,
-			RelativeLayout layoutEnableJS, RelativeLayout layoutOrbot, RelativeLayout layoutColor,
-			final CheckBox flash, final CheckBox adblock, final CheckBox images,
-			final CheckBox enablejs, final CheckBox orbot, final CheckBox color) {
+	public void clickListenerForCheckBoxes() {
 		layoutFlash.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				if (API < 19) {
-					flash.setChecked(!flash.isChecked());
-				} else {
-					Utils.createInformativeDialog(mContext,
-							getResources().getString(R.string.title_warning), getResources()
-									.getString(R.string.dialog_adobe_dead));
-				}
-			}
-
-		});
+            @Override
+            public void onClick(View v) {
+                if (API < 19) {
+                    cbFlash.setChecked(!cbFlash.isChecked());
+                } else {
+                    Utils.createInformativeDialog(mContext,
+                            getResources().getString(R.string.title_warning), getResources()
+                                    .getString(R.string.dialog_adobe_dead));
+                }
+            }
+        });
 		layoutBlockAds.setOnClickListener(new OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				adblock.setChecked(!adblock.isChecked());
-			}
+            @Override
+            public void onClick(View v) {
+                cbAdblock.setChecked(!cbAdblock.isChecked());
+            }
 
-		});
+        });
 		layoutImages.setOnClickListener(new OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				images.setChecked(!images.isChecked());
-			}
+            @Override
+            public void onClick(View v) {
+                cbImages.setChecked(!cbImages.isChecked());
+            }
 
-		});
+        });
 		layoutEnableJS.setOnClickListener(new OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				enablejs.setChecked(!enablejs.isChecked());
-			}
+            @Override
+            public void onClick(View v) {
+                cbEnablejs.setChecked(!cbEnablejs.isChecked());
+            }
 
-		});
+        });
 		layoutOrbot.setOnClickListener(new OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				if (orbot.isEnabled()) {
-					orbot.setChecked(!orbot.isChecked());
-				} else {
-					Utils.showToast(mContext, getResources().getString(R.string.install_orbot));
-				}
-			}
-
-		});
-		layoutColor.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				color.setChecked(!color.isChecked());
-			}
-
-		});
+            @Override
+            public void onClick(View v) {
+                if (cbOrbot.isEnabled()) {
+                    cbOrbot.setChecked(!cbOrbot.isChecked());
+                } else Utils.showToast(mContext, getResources().getString(R.string.install_orbot));
+            }
+        });
+        layoutSwipeTabs.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cbSwipeTabs.setChecked(!cbSwipeTabs.isChecked());
+            }
+        });
+		layoutDrawer.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cbDrawer.setChecked(!cbDrawer.isChecked());
+            }
+        });
+        layoutToolbar.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cbToolbar.setChecked(!cbToolbar.isChecked());
+            }
+        });
 	}
 
-	public void initCheckBox(CheckBox flash, CheckBox adblock, CheckBox images, CheckBox enablejs,
-			CheckBox orbot, CheckBox color) {
-		flash.setEnabled(API < 19);
-		flash.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+	public void initCheckBox() {
+		cbFlash.setEnabled(API < 19);
+		cbFlash.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if (isChecked) {
-					getFlashChoice();
-				} else {
-					mPreferences.setFlashSupport(0);
-				}
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    getFlashChoice();
+                } else mPreferences.setFlashSupport(0);
 
-				boolean flashInstalled = false;
-				try {
-					PackageManager pm = getPackageManager();
-					ApplicationInfo ai = pm.getApplicationInfo("com.adobe.flashplayer", 0);
-					if (ai != null) {
-						flashInstalled = true;
-					}
-				} catch (NameNotFoundException e) {
-					flashInstalled = false;
-				}
-				if (!flashInstalled && isChecked) {
-					Utils.createInformativeDialog(SettingsActivity.this,
-							getResources().getString(R.string.title_warning), getResources()
-									.getString(R.string.dialog_adobe_not_installed));
-					buttonView.setChecked(false);
-					mPreferences.setFlashSupport(0);
+                boolean flashInstalled = false;
+                try {
+                    PackageManager pm = getPackageManager();
+                    ApplicationInfo ai = pm.getApplicationInfo("com.adobe.flashplayer", 0);
+                    if (ai != null) {
+                        flashInstalled = true;
+                    }
+                } catch (NameNotFoundException e) {
+                    flashInstalled = false;
+                }
+                if (!flashInstalled && isChecked) {
+                    Utils.createInformativeDialog(SettingsActivity.this,
+                            getResources().getString(R.string.title_warning), getResources()
+                                    .getString(R.string.dialog_adobe_not_installed));
+                    buttonView.setChecked(false);
+                    mPreferences.setFlashSupport(0);
 
-				} else if ((API >= 17) && isChecked) {
-					Utils.createInformativeDialog(SettingsActivity.this,
-							getResources().getString(R.string.title_warning), getResources()
-									.getString(R.string.dialog_adobe_unsupported));
-				}
-			}
-
-		});
-		adblock.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+                } else if ((API >= 17) && isChecked) {
+                    Utils.createInformativeDialog(SettingsActivity.this,
+                            getResources().getString(R.string.title_warning), getResources()
+                                    .getString(R.string.dialog_adobe_unsupported));
+                }
+            }
+        });
+		cbAdblock.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -237,16 +246,15 @@ public class SettingsActivity extends ThemableSettingsActivity {
 			}
 
 		});
-		images.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+		cbImages.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				mPreferences.setBlockImagesEnabled(isChecked);
-
 			}
 
 		});
-		enablejs.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+		cbEnablejs.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -254,6 +262,30 @@ public class SettingsActivity extends ThemableSettingsActivity {
 			}
 
 		});
+        cbSwipeTabs.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mPreferences.setSwipeTabsEnabled(isChecked);
+            }
+        });
+		cbDrawer.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				mPreferences.setBottomDrawerEnabled(isChecked);
+                if (isChecked) layoutToolbar.setVisibility(View.VISIBLE);
+                else {
+                    layoutToolbar.setVisibility(View.GONE);
+                    cbToolbar.setChecked(false);
+                }
+                mPreferences.setRestartActivity(mBottomDrawerEnabled != isChecked);
+			}
+		});
+        cbToolbar.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mPreferences.setBottomToolbarEnabled(isChecked);
+            }
+        });
 		//OrbotHelper oh = new OrbotHelper(this);
 		//if (!oh.isOrbotInstalled()) {
 			//orbot.setEnabled(false);
@@ -269,15 +301,6 @@ public class SettingsActivity extends ThemableSettingsActivity {
 
 		//});
 
-		color.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				mPreferences.setColorModeEnabled(isChecked);
-
-			}
-
-		});
 	}
 
 	private void getFlashChoice() {
@@ -301,14 +324,14 @@ public class SettingsActivity extends ThemableSettingsActivity {
 							}
 						}).setOnCancelListener(new OnCancelListener() {
 
-					@Override
-					public void onCancel(DialogInterface dialog) {
-						mPreferences.setFlashSupport(0);
-					}
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                mPreferences.setFlashSupport(0);
+            }
 
 				});
 		AlertDialog alert = builder.create();
-		alert.show();
+        alert.show();
 	}
 
 	public void agentPicker() {
@@ -333,23 +356,19 @@ public class SettingsActivity extends ThemableSettingsActivity {
 
 	public void general(RelativeLayout view) {
 		view.setOnClickListener(new OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				startActivity(new Intent(mContext, GeneralSettingsActivity.class));
 			}
-
 		});
 	}
 
 	public void display(RelativeLayout view) {
 		view.setOnClickListener(new OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				startActivity(new Intent(mContext, DisplaySettingsActivity.class));
 			}
-
 		});
 	}
 
@@ -367,22 +386,20 @@ public class SettingsActivity extends ThemableSettingsActivity {
 	public void advanced(RelativeLayout view) {
 		view.setOnClickListener(new OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				startActivity(new Intent(mContext, AdvancedSettingsActivity.class));
-			}
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(mContext, AdvancedSettingsActivity.class));}
 
 		});
 	}
 
 	public void about(RelativeLayout view) {
 		view.setOnClickListener(new OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				startActivity(new Intent(mContext, AboutSettingsActivity.class));
 			}
-
 		});
 	}
+
 }

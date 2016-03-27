@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.browser.Speed.controller.BrowserController;
+import com.browser.Speed.controller.IBrowserController;
 
 public class IntentUtils {
 
@@ -28,7 +28,7 @@ public class IntentUtils {
 			"(?:http|https|file):\\/\\/" + "|(?:inline|data|about|javascript):" + "|(?:.*:.*@)"
 			+ ")" + "(.*)");
 
-	public IntentUtils(BrowserController controller) {
+	public IntentUtils(IBrowserController controller) {
 		mActivity = controller.getActivity();
 	}
 

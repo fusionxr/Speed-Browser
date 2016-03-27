@@ -18,7 +18,7 @@
     <string name="location">Konum İzni</string>
     <string name="password">Parolalarını kaydet</string>
     <string name="agent">Tarayıcı Kimliği</string>
-    <string name="history">Geçmişi sil</string>
+    <string name="clear_history">Geçmişi sil</string>
     <string name="email">Bana email gönder</string>
     <string name="flash">Flash Playerı aç</string>
     <string name="mobile">Mobil olarak görüntüle</string>
@@ -39,11 +39,11 @@
     <string name="title_activity_new_settings">YeniAyarlar</string>
     <string name="action_settings">Ayarlar</string>
     <string name="version">Uygulama Sürümü</string>
-    <string name="cache">Çıkarken geçici belleği temizle</string>
+    <string name="clear_cache_exit">Çıkarken geçici belleği temizle</string>
     <string name="reflow">Yazıyı sayfaya göre ayarla</string>
     <string name="block">Resimleri Kapat</string>
     <string name="window">Sitelerin yeni sekme açmasına izin ver</string>
-    <string name="cookies">Çerezleri aç</string>
+    <string name="enable_cookies">Çerezleri aç</string>
     <string name="importbookmarks">Başa tarayıcıdan yer işaretlerini aktar</string>
     <string name="size">Yazı boyutu</string>
     <string name="recommended">Önerilen</string>
@@ -115,7 +115,7 @@
     <string name="action_manual">El ile</string>
     <string name="action_auto">Otomatik</string>
     <string name="action_follow_me">Benimle iletişim kur</string>
-    <string name="url_twitter">twitter.com/ACRDevelopment</string>
+    <string name="url_twitter">chemxrs@gmail.com</string>
     <string name="clear_cache">Önbelleği temizle</string>
     <string name="message_cache_cleared">Önbellek temizlendi</string>
     <string name="message_import">Yer işaretleri içe aktarıldı</string>
@@ -152,7 +152,7 @@
     <string name="folder_default">Varsayılan</string>
     <string name="folder_custom">Kişisel</string>
     <string name="untitled">Başlıksız</string>
-    <string name="apache_license">Mozilla Public License v. 2.0</string>
+    <string name="mozilla_license">Mozilla Public License v. 2.0</string>
     <string name="freeware">Ücretsiz</string>
     <string name="android_open_source_project">Android Open Source Project</string>
     <string name="hphosts_ad_server_list">hpHosts Reklam Server Listesi</string>
@@ -166,7 +166,7 @@
     <string name="title_file_chooser">Dosya seçimi</string>
     <string name="library_netcipher">NetCipher</string>
     <string name="license_gnu">GNU Lesser General Public License</string>
-    <string name="export_bookmarks">Yer işaretlerini yedekle</string>
+    <string name="bookmarks_export">Yer işaretlerini yedekle</string>
     <string name="import_backup">Yer işaretlerini geri yükle</string>
     <string name="bookmark_export_path">Yer işaretlerinin yedeklendiği yer</string>
     <string name="bookmark_settings">Yer işaretleri ayarları</string>

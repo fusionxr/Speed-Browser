@@ -5,7 +5,7 @@
     <string name="location">Accéder à ma position</string>
     <string name="password">Enregistrer les mots de passe</string>
     <string name="agent">User Agent</string>
-    <string name="history">Effacer l\'historique à la sortie</string>
+    <string name="clear_history">Effacer l\'historique à la sortie</string>
     <string name="email">Contactez moi</string>
     <string name="flash">Activer Adobe Flash Player</string>
     <string name="mobile">Voir la version mobile</string>

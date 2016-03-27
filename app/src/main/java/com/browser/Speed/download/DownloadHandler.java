@@ -187,7 +187,7 @@ public class DownloadHandler {
 		String location = PreferenceManager.getInstance().getDownloadDirectory();
 		request.setDestinationInExternalPublicDir(location, filename);
 		// let this downloaded file be scanned by MediaScanner - so that it can
-		// show up in Gallery app, for example.
+		// openDrawer up in Gallery app, for example.
 		request.allowScanningByMediaScanner();
 		request.setDescription(webAddress.getHost());
 		// XXX: Have to use the old url since the cookies were stored using the

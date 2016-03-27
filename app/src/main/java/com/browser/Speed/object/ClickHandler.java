@@ -7,17 +7,17 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 
-import com.browser.Speed.controller.BrowserController;
+import com.browser.Speed.controller.IBrowserController;
 
 public class ClickHandler extends Handler {
 
-	private BrowserController mBrowserController;
+	private IBrowserController mBrowserController;
 
 	public ClickHandler(Context context) {
 		try {
-			mBrowserController = (BrowserController) context;
+			mBrowserController = (IBrowserController) context;
 		} catch (ClassCastException e) {
-			throw new ClassCastException(context + " must implement BrowserController");
+			throw new ClassCastException(context + " must implement IBrowserController");
 		}
 	}
 

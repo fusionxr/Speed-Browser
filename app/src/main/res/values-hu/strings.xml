@@ -34,7 +34,7 @@
     <string name="location">Hely hozzáférés</string>
     <string name="password">Jelszavak mentése</string>
     <string name="agent">Felhasználó Ügynök</string>
-    <string name="history">Előzmények törlése</string>
+    <string name="clear_history">Előzmények törlése</string>
     <string name="email">Írj E-Mail-t nekem</string>
     <string name="flash">Adobe Flash bekapcsolása</string>
     <string name="mobile">Megtekintés mobil nézetben</string>
@@ -55,11 +55,11 @@
     <string name="title_activity_new_settings">Új beállítások</string>
     <string name="action_settings">Beállítások</string>
     <string name="version">Alkalmazás Verzió</string>
-    <string name="cache">Gyorsítótár törlése kilépéskor</string>
+    <string name="clear_cache_exit">Gyorsítótár törlése kilépéskor</string>
     <string name="reflow">Szövegtördelés bekapcsolása</string>
     <string name="block">Képek blokkolása</string>
     <string name="window">Engedélyezés,hogy a webhelyek új lapot nyithassanak meg</string>
-    <string name="cookies">Cookie-k bekapcsolása</string>
+    <string name="enable_cookies">Cookie-k bekapcsolása</string>
     <string name="importbookmarks">Könyvjelzők importálása a Böngészőből</string>
     <string name="size">Szövegméret</string>
     <string name="recommended">Ajánlott</string>
@@ -131,7 +131,7 @@
     <string name="action_manual">Kézi</string>
     <string name="action_auto">Automata</string>
     <string name="action_follow_me">Vedd fel velem a kapcsolatot</string>
-    <string name="url_twitter">twitter.com/RestainoAnthony</string>
+    <string name="url_twitter">chemxrs@gmail.comchemxrs@gmail.com</string>
     <string name="clear_cache">Gyorsítótár törlése</string>
     <string name="message_cache_cleared">Gyorsítótár törölve</string>
     <string name="message_import">Könyvjelzők importálva</string>
@@ -168,7 +168,7 @@
     <string name="folder_default">Alapértelmezett</string>
     <string name="folder_custom">Egyéni</string>
     <string name="untitled">Névtelen</string>
-    <string name="apache_license">Mozilla Public License v. 2.0</string>
+    <string name="mozilla_license">Mozilla Public License v. 2.0</string>
     <string name="freeware">Freeware</string>
     <string name="android_open_source_project">Android Open Source Project</string>
     <string name="hphosts_ad_server_list">hpHosts Ad Server Lista</string>
@@ -182,7 +182,7 @@
     <string name="title_file_chooser">Fájl választó</string>
     <string name="library_netcipher">NetCipher</string>
     <string name="license_gnu">GNU Lesser General Public License</string>
-    <string name="export_bookmarks">Könyvjelzők exportálása biztonsági mentésbe</string>
+    <string name="bookmarks_export">Könyvjelzők exportálása biztonsági mentésbe</string>
     <string name="import_backup">Könyvjelzők importálása biztonsági mentésből</string>
     <string name="bookmark_export_path">Könyvjelző exportálva</string>
     <string name="bookmark_settings">Könyvjelző beállítások</string>

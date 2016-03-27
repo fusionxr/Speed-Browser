@@ -35,11 +35,6 @@ import java.util.zip.InflaterInputStream;
 import com.browser.Speed.constant.Constants;
 import android.util.Log;
 
-/**
- * Class to fetch articles. This class is thread safe.
- * 
- * @author Peter Karich
- */
 public class HtmlFetcher {
 
 	static {

@@ -9,6 +9,7 @@ import com.browser.Speed.constant.Constants;
 public class PreferenceManager {
 
 	private static class Name {
+		public static final String RESTART_ACTIVITY = "restart";
 		public static final String ADOBE_FLASH_SUPPORT = "enableflash";
 		public static final String BLOCK_ADS = "AdBlock";
 		public static final String BLOCK_IMAGES = "blockimages";
@@ -21,11 +22,18 @@ public class PreferenceManager {
 		public static final String HOMEPAGE = "home";
 		public static final String INCOGNITO_COOKIES = "incognitocookies";
 		public static final String JAVASCRIPT = "java";
+        public static final String SWIPE_TABS = "swipetabs";
+		public static final String BOTTOM_DRAWER = "bottomdrawer";
+        public static final String BOTTOM_TOOLBAR = "bottomtoolbar";
+		public static final String CARD_VIEW = "cardview";
+		public static final String BOOKMARK_3DOT = "3dotbookmark";
 		public static final String LOCATION = "location";
 		public static final String OVERVIEW_MODE = "overviewmode";
 		public static final String POPUPS = "newwindows";
+        public static final String OPEN_LINKS_BACKGROUND = "linksbackground";
 		public static final String RESTORE_LOST_TABS = "restoreclosed";
 		public static final String EXIT_ON_TAB_CLOSE = "keepbrowseropen";
+        public static final String HARDWARE_RENDERING = "hardwarerendering";
 		public static final String SAVE_PASSWORDS = "passwords";
 		public static final String SEARCH = "search";
 		public static final String SEARCH_URL = "searchurl";
@@ -35,6 +43,7 @@ public class PreferenceManager {
 		public static final String URL_MEMORY = "memory";
 		public static final String USE_WIDE_VIEWPORT = "wideviewport";
 		public static final String USER_AGENT = "agentchoose";
+        public static final String DEFAULT_USER_AGENT = "defaultagent";
 		public static final String USER_AGENT_STRING = "userAgentString";
 		public static final String GOOGLE_SEARCH_SUGGESTIONS = "GoogleSearchSuggestions";
 		public static final String CLEAR_HISTORY_EXIT = "clearHistoryExit";
@@ -46,6 +55,7 @@ public class PreferenceManager {
 		public static final String ENABLE_COLOR_MODE = "colorMode";
 		public static final String URL_BOX_CONTENTS = "urlContent";
 		public static final String INVERT_COLORS = "invertColors";
+        public static final String NIGHT_MODE = "nightmode";
 		public static final String READING_TEXT_SIZE = "readingTextSize";
 		public static final String DARK_THEME = "darkTheme";
 		public static final String DEFAULT_BOOKMARKS = "defaultBookmarks";
@@ -71,6 +81,10 @@ public class PreferenceManager {
 	private PreferenceManager() {
 		mPrefs = BrowserApp.getAppContext().getSharedPreferences(PREFERENCES, 0);
 	}
+
+	public boolean getRestartActivity () { return mPrefs.getBoolean(Name.RESTART_ACTIVITY, false); }
+
+	public void setRestartActivity(boolean restart) { putBoolean(Name.RESTART_ACTIVITY, restart); }
 
 	public boolean getAdBlockEnabled() {
 		return mPrefs.getBoolean(Name.BLOCK_ADS, true);
@@ -146,8 +160,30 @@ public class PreferenceManager {
 		return mPrefs.getBoolean(Name.INVERT_COLORS, false);
 	}
 
+    public boolean getNightModeEnabled(){
+        return mPrefs.getInt(Name.RENDERING_MODE, 0) == 4;
+    }
+
 	public boolean getJavaScriptEnabled() {
 		return mPrefs.getBoolean(Name.JAVASCRIPT, true);
+	}
+
+    public boolean getSwipeTabsEnabled(){
+        return mPrefs.getBoolean(Name.SWIPE_TABS, false);
+    }
+
+	public boolean getBottomDrawerEnabled() {
+		return mPrefs.getBoolean(Name.BOTTOM_DRAWER, false);
+	}
+
+    public boolean getBottomToolbarEnabled() { return mPrefs.getBoolean(Name.BOTTOM_TOOLBAR, false); }
+
+	public boolean getCardViewEnabled() {
+		return mPrefs.getBoolean(Name.CARD_VIEW, false);
+	}
+
+	public boolean getUse3DotMenu(){
+		return mPrefs.getBoolean(Name.BOOKMARK_3DOT, false);
 	}
 
 	public boolean getLocationEnabled() {
@@ -182,6 +218,10 @@ public class PreferenceManager {
 		return mPrefs.getInt(Name.RENDERING_MODE, 0);
 	}
 
+    public boolean getOpenLinksBackground(){
+        return mPrefs.getBoolean(Name.OPEN_LINKS_BACKGROUND, true);
+    }
+
 	public boolean getRestoreLostTabsEnabled() {
 		return mPrefs.getBoolean(Name.RESTORE_LOST_TABS, true);
 	}
@@ -189,6 +229,10 @@ public class PreferenceManager {
 	public boolean getExitOnTabClose() {
 		return mPrefs.getBoolean(Name.EXIT_ON_TAB_CLOSE, true);
 	}
+
+    public boolean getHardwareRenderingEnabled(){
+        return mPrefs.getBoolean(Name.HARDWARE_RENDERING, false);
+    }
 
 	public String getSavedUrl() {
 		return mPrefs.getString(Name.SAVE_URL, null);
@@ -219,7 +263,7 @@ public class PreferenceManager {
 	}
 
 	public int getTextSize() {
-		return mPrefs.getInt(Name.TEXT_SIZE, 3);
+		return mPrefs.getInt(Name.TEXT_SIZE, 100);
 	}
 
 	public int getUrlBoxContentChoice() {
@@ -237,6 +281,8 @@ public class PreferenceManager {
 	public int getUserAgentChoice() {
 		return mPrefs.getInt(Name.USER_AGENT, 1);
 	}
+
+    public String getUserAgentString() { return mPrefs.getString(Name.USER_AGENT, Constants.MOBILE_USER_AGENT); }
 
 	public String getUserAgentString(String def) {
 		return mPrefs.getString(Name.USER_AGENT_STRING, def);
@@ -332,8 +378,30 @@ public class PreferenceManager {
 		putBoolean(Name.INVERT_COLORS, enable);
 	}
 
+    public void setNightMode(boolean enable){ putInt(Name.RENDERING_MODE, 4); }
+
 	public void setJavaScriptEnabled(boolean enable) {
 		putBoolean(Name.JAVASCRIPT, enable);
+	}
+
+    public void setSwipeTabsEnabled(boolean enabled) {
+        putBoolean(Name.SWIPE_TABS, enabled);
+    }
+
+	public void setBottomDrawerEnabled(boolean enable){
+		putBoolean(Name.BOTTOM_DRAWER, enable);
+	}
+
+    public void setBottomToolbarEnabled(boolean enabled){
+        putBoolean(Name.BOTTOM_TOOLBAR, enabled);
+    }
+
+	public void setCardViewEnabled(boolean enable){
+		putBoolean(Name.CARD_VIEW, enable);
+	}
+
+	public void setUse3DotMenu(boolean enabled) {
+		putBoolean(Name.BOOKMARK_3DOT, enabled);
 	}
 
 	public void setLocationEnabled(boolean enable) {
@@ -360,11 +428,19 @@ public class PreferenceManager {
 		putInt(Name.RENDERING_MODE, mode);
 	}
 
+    public void setOpenLinksBackground(boolean enable){
+        putBoolean(Name.OPEN_LINKS_BACKGROUND, enable);
+    }
+
 	public void setRestoreLostTabsEnabled(boolean enable) {
 		putBoolean(Name.RESTORE_LOST_TABS, enable);
 	}
 
 	public void setExitOnTabClose(boolean enable) { putBoolean(Name.EXIT_ON_TAB_CLOSE, enable); }
+
+    public void setHardwareRenderingEnabled(boolean enabled){
+        putBoolean(Name.HARDWARE_RENDERING, enabled);
+    }
 
 	public void setSavedUrl(String url) {
 		putString(Name.SAVE_URL, url);
@@ -413,6 +489,10 @@ public class PreferenceManager {
 	public void setUserAgentChoice(int choice) {
 		putInt(Name.USER_AGENT, choice);
 	}
+
+    public void setUserAgentChoice(String userAgentChoice){
+        putString(Name.USER_AGENT, userAgentChoice);
+    }
 
 	public void setUserAgentString(String agent) {
 		putString(Name.USER_AGENT_STRING, agent);

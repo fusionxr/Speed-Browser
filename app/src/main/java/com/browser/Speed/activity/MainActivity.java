@@ -33,7 +33,6 @@ public class MainActivity extends BrowserActivity {
 	@Override
 	public synchronized void initializeTabs() {
 		restoreOrNewTab();
-		// if incognito mode use newTab(null, true); instead
 	}
 
 	@Override
@@ -52,12 +51,6 @@ public class MainActivity extends BrowserActivity {
 	protected void onPause() {
 		super.onPause();
         saveOpenTabs();
-	}
-
-	@Override
-	public void updateHistory(String title, String url) {
-		super.updateHistory(title, url);
-		addItemToHistory(title, url);
 	}
 
 	@Override

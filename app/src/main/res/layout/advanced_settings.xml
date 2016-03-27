@@ -2,9 +2,46 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:background="?attr/settingsBackground">
 
-    <include layout="@layout/toolbar_settings" />
+    <android.support.v7.widget.Toolbar
+        xmlns:custom="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?toolbarSettingsBackground"
+        android:elevation="2dp"
+        android:minHeight="?attr/actionBarSize"
+        custom:contentInsetEnd="0dp"
+        custom:contentInsetStart="0dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null">
+
+            <TextView
+                android:id="@+id/settings_title"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:text="@string/settings_advanced"
+                android:textSize="20dp"
+                android:textColor="?attr/settingsTextColor"/>
+
+            <ImageView
+                android:id="@+id/help"
+                android:layout_width="56dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:padding="16dp"
+                android:src="@drawable/ic_help"
+                android:visibility="gone"/>
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.Toolbar>
 
     <ScrollView
         android:id="@+id/scrollView1"
@@ -40,7 +77,8 @@
                         android:paddingLeft="16dp"
                         android:paddingRight="30dp"
                         android:text="@string/window"
-                        android:textAppearance="?android:attr/textAppearanceMedium" />
+                        android:textColor="?attr/settingsTextColor"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -60,7 +98,7 @@
                     android:layout_centerVertical="true" />
             </RelativeLayout>
 
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginLeft="10dp"
@@ -68,7 +106,7 @@
                 android:background="?attr/dividerColor" />
 
             <RelativeLayout
-                android:id="@+id/rAllowCookies"
+                android:id="@+id/rOpenLinksBackground"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/listChoiceBackgroundIndicator"
@@ -77,82 +115,26 @@
                 android:paddingRight="10dp"
                 android:paddingTop="10dp" >
 
-                <LinearLayout
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
                     android:layout_centerVertical="true"
-                    android:orientation="vertical" >
-
-                    <TextView
-                        android:id="@+id/textView2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="16dp"
-                        android:paddingRight="30dp"
-                        android:text="@string/cookies"
-                        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="16dp"
-                        android:paddingRight="30dp"
-                        android:text="@string/recommended"
-                        android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:textColor="@color/light" />
-                </LinearLayout>
+                    android:paddingLeft="16dp"
+                    android:paddingRight="30dp"
+                    android:text="@string/openLinksBackground"
+                    android:textColor="?attr/settingsTextColor"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <CheckBox
-                    android:id="@+id/cbAllowCookies"
+                    android:id="@+id/cbOpenLinksBackground"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true" />
             </RelativeLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
-
-            <RelativeLayout
-                android:id="@+id/rAllowIncognitoCookies"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
-                android:paddingBottom="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="10dp" >
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_centerVertical="true"
-                    android:orientation="vertical" >
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="16dp"
-                        android:paddingRight="30dp"
-                        android:text="@string/incognito_cookies"
-                        android:textAppearance="?android:attr/textAppearanceMedium" />
-                </LinearLayout>
-
-                <CheckBox
-                    android:id="@+id/cbAllowIncognitoCookies"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true" />
-            </RelativeLayout>
-
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginLeft="10dp"
@@ -177,6 +159,7 @@
                     android:paddingLeft="16dp"
                     android:paddingRight="30dp"
                     android:text="@string/restore"
+                    android:textColor="?attr/settingsTextColor"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <CheckBox
@@ -187,7 +170,7 @@
                     android:layout_centerVertical="true" />
             </RelativeLayout>
 
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginLeft="10dp"
@@ -212,6 +195,7 @@
                     android:paddingLeft="16dp"
                     android:paddingRight="30dp"
                     android:text="@string/keep_open"
+                    android:textColor="?attr/settingsTextColor"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <CheckBox
@@ -222,7 +206,75 @@
                     android:layout_centerVertical="true" />
             </RelativeLayout>
 
-            <LinearLayout
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="?attr/dividerColor" />
+
+            <RelativeLayout
+                android:id="@+id/rHardwareRendering"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/listChoiceBackgroundIndicator"
+                android:minHeight="60dp"
+                android:paddingBottom="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="30dp"
+                    android:text="@string/hardware_rendering"
+                    android:textColor="?attr/settingsTextColor"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <CheckBox
+                    android:id="@+id/cbHardwareRendering"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true" />
+            </RelativeLayout>
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="?attr/dividerColor" />
+
+            <RelativeLayout
+                android:id="@+id/rAdblockList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/listChoiceBackgroundIndicator"
+                android:minHeight="60dp"
+                android:paddingBottom="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="30dp"
+                    android:text="@string/manage_adblock"
+                    android:textColor="?attr/settingsTextColor"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            </RelativeLayout>
+
+
+            <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginLeft="10dp"
@@ -244,6 +296,7 @@
                     android:layout_height="wrap_content"
                     android:paddingLeft="16dp"
                     android:text="@string/url_contents"
+                    android:textColor="?attr/settingsTextColor"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <TextView
@@ -256,13 +309,22 @@
                     android:textColor="@color/light" />
             </LinearLayout>
 
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:background="?attr/dividerColor" />
+
         </LinearLayout>
     </ScrollView>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/adblock_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:paddingTop="5dp"
+        android:clipToPadding="false"/>
 
 </LinearLayout>

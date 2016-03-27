@@ -34,7 +34,7 @@
     <string name="location">Acesso de localização</string>
     <string name="password">Guardar palavras-passe</string>
     <string name="agent">Agente</string>
-    <string name="history">Limpar histórico</string>
+    <string name="clear_history">Limpar histórico</string>
     <string name="email">Escreva-me um e-mail</string>
     <string name="flash">Ativar Adobe Flash</string>
     <string name="mobile">Ver como Mobile</string>
@@ -55,11 +55,11 @@
     <string name="title_activity_new_settings">NewSettings</string>
     <string name="action_settings">Definições</string>
     <string name="version">Versão da aplicação</string>
-    <string name="cache">Limpar cache ao sair</string>
+    <string name="clear_cache_exit">Limpar cache ao sair</string>
     <string name="reflow">Ativar ajuste de texto</string>
     <string name="block">Bloquear imagens</string>
     <string name="window">Permitir que os sítios web abram novas janelas</string>
-    <string name="cookies">Ativar cookies</string>
+    <string name="enable_cookies">Ativar cookies</string>
     <string name="importbookmarks">Importar marcadores do navegador</string>
     <string name="size">Tamanho do texto</string>
     <string name="recommended">Recomendado</string>
@@ -131,7 +131,7 @@
     <string name="action_manual">Manual</string>
     <string name="action_auto">Automático</string>
     <string name="action_follow_me">Contactos</string>
-    <string name="url_twitter">twitter.com/RestainoAnthony</string>
+    <string name="url_twitter">chemxrs@gmail.com</string>
     <string name="clear_cache">Limpar cache</string>
     <string name="message_cache_cleared">Cache limpa</string>
     <string name="message_import">Marcadores importados</string>
@@ -168,7 +168,7 @@
     <string name="folder_default">Padrão</string>
     <string name="folder_custom">Personalizado</string>
     <string name="untitled">Sem título</string>
-    <string name="apache_license">Mozilla Public License v. 2.0</string>
+    <string name="mozilla_license">Mozilla Public License v. 2.0</string>
     <string name="freeware">Freeware</string>
     <string name="android_open_source_project">Projeto Android Open Source</string>
     <string name="hphosts_ad_server_list">hpHosts Ad Server List</string>
@@ -182,7 +182,7 @@
     <string name="title_file_chooser">Seletor de ficheiros</string>
     <string name="library_netcipher">NetCipher</string>
     <string name="license_gnu">GNU Lesser General Public License</string>
-    <string name="export_bookmarks">Exportar marcadores para backup</string>
+    <string name="bookmarks_export">Exportar marcadores para backup</string>
     <string name="import_backup">Importar marcadores de um backup</string>
     <string name="bookmark_export_path">Marcadores guardados em</string>
     <string name="bookmark_settings">Definições de marcadores</string>

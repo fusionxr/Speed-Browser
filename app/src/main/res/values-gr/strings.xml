@@ -18,7 +18,7 @@
     <string name="location">Πρόσβαση σε τοποθεσία</string>
     <string name="password">Αποθήκευση κωδικών</string>
     <string name="agent">User Agent</string>
-    <string name="history">Καθαρισμός Ιστορικού</string>
+    <string name="clear_history">Καθαρισμός Ιστορικού</string>
     <string name="email">Στείλτε μου email</string>
     <string name="flash">Ενεργοποίηση Adobe Flash</string>
     <string name="mobile">Προβολή ως κινητό</string>
@@ -39,11 +39,11 @@
     <string name="title_activity_new_settings">Νέες ρυθμίσεις</string>
     <string name="action_settings">Ρυθμίσεις</string>
     <string name="version">Έκδοση εφαρμογής</string>
-    <string name="cache">Καθαρισμός cache στο κλείσιμο</string>
+    <string name="clear_cache_exit">Καθαρισμός cache στο κλείσιμο</string>
     <string name="reflow">Ενεργοποίηση αναδιαμόρφωσης κειμένου</string>
     <string name="block">Μπλοκάρισμα εικόνων</string>
     <string name="window">Να επιτρέπεται στις σελίδες να ανοίγουν νέα παράθυρα</string>
-    <string name="cookies">Ενεργοποίηση Cookies</string>
+    <string name="enable_cookies">Ενεργοποίηση Cookies</string>
     <string name="importbookmarks">Εισαγωγή σελιδοδεικτών απο άλλον Browser</string>
     <string name="size">Μέγεθος κειμένου</string>
     <string name="recommended">Συνιστάται</string>
@@ -115,7 +115,7 @@
     <string name="action_manual">Χειροκίνητα</string>
     <string name="action_auto">Αυτόματα</string>
     <string name="action_follow_me">Επικοινωνήστε μαζί μου</string>
-    <string name="url_twitter">twitter.com/ACRDevelopment</string>
+    <string name="url_twitter">chemxrs@gmail.com</string>
     <string name="clear_cache">Καθαρισμός cache</string>
     <string name="message_cache_cleared">Cache καθαρίστηκε</string>
     <string name="message_import">Εισήχθησαν οι σελιδοδείκτες</string>
@@ -152,7 +152,7 @@
     <string name="folder_default">Προεπιλογή</string>
     <string name="folder_custom">Συγκεκριμένο</string>
     <string name="untitled">Χωρίς τίτλο</string>
-    <string name="apache_license">Mozilla Public License v. 2.0</string>
+    <string name="mozilla_license">Mozilla Public License v. 2.0</string>
     <string name="freeware">Freeware</string>
     <string name="android_open_source_project">Android Open Source Project</string>
     <string name="hphosts_ad_server_list">hpHosts Ad Server List</string>
@@ -166,7 +166,7 @@
     <string name="title_file_chooser">Επιλογή αρχείου</string>
     <string name="library_netcipher">NetCipher</string>
     <string name="license_gnu">GNU Lesser General Public License</string>
-    <string name="export_bookmarks">Εξαγωγή σελιδοδεικτών σε αρχείο</string>
+    <string name="bookmarks_export">Εξαγωγή σελιδοδεικτών σε αρχείο</string>
     <string name="import_backup">Εισαγωγή σελιδοδεικτών απο αρχείο</string>
     <string name="bookmark_export_path">Σελιδοδείκτες εξάχθηκαν στο</string>
     <string name="bookmark_settings">Ρυθμίσεις σελιδοδεικτών</string>

@@ -6,11 +6,15 @@
     <color name="gray_dark">#222222</color>
     <color name="gray_light">#dddddd</color>
     <color name="gray_medium">#cdcdcd</color>
+    <color name="gray_medium_dark">#9e9e9e</color>
+    <color name="gray_medium_darker">#757575</color>
+    <color name="gray_medium_darkest">#424242</color>
     <color name="white">#ffffff</color>
     <color name="gray_extra_dark">#1b1b1b</color>
     <color name="gray_list_bg">#0d000000</color>
     <color name="dark_text">#212121</color>
     <color name="tabs">#616161</color>
+    <color name="light_green">#00BFA5</color>
 
     <color name="primary_color">#EEEEEE</color>
     <color name="secondary_color">#4D000000</color>
@@ -28,6 +32,8 @@
 
     <color name="divider_dark">#1EFFFFFF</color>
     <color name="divider_light">#1E000000</color>
+
+    <color name="light_gray">#E0E0E0</color>
 
 
     <color name="selected_dark">#0FFFFFFF</color>

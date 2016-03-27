@@ -18,7 +18,7 @@
     <string name="password">保存密码</string>
     <!-- <string name="keep_last_tab">不关闭最后一个标签</string> -->
     <string name="agent">User Agent</string>
-    <string name="history">清空历史记录</string>
+    <string name="clear_history">清空历史记录</string>
     <string name="email">邮件开发者</string>
     <string name="flash">启用 Adobe Flash</string>
     <string name="mobile">作为移动设备访问</string>
@@ -39,11 +39,11 @@
     <string name="title_activity_new_settings">NewSettings</string>
     <string name="action_settings">应用设置</string>
     <string name="version">当前版本</string>
-    <string name="cache">退出时清理缓存</string>
+    <string name="clear_cache_exit">退出时清理缓存</string>
     <string name="reflow">启用文本重排</string>
     <string name="block">屏蔽网页图像</string>
     <string name="window">允许站点打开新窗口</string>
-    <string name="cookies">启用 Cookies</string>
+    <string name="enable_cookies">启用 Cookies</string>
     <string name="importbookmarks">从浏览器中导入书签</string>
     <string name="size">页面文本尺寸</string>
     <string name="recommended">（推荐）</string>
@@ -115,7 +115,7 @@
     <string name="action_manual">手工</string>
     <string name="action_auto">自动</string>
     <string name="action_follow_me">联系我</string>
-    <string name="url_twitter">twitter.com/ACRDevelopment</string>
+    <string name="url_twitter">chemxrs@gmail.com</string>
     <string name="clear_cache">清除缓存</string>
     <string name="message_cache_cleared">缓存已清除</string>
     <string name="message_import">书签导入成功</string>
@@ -152,7 +152,7 @@
     <string name="folder_default">默认</string>
     <string name="folder_custom">自定义</string>
     <string name="untitled">未标题的</string>
-    <string name="apache_license">Mozilla Public License v. 2.0</string>
+    <string name="mozilla_license">Mozilla Public License v. 2.0</string>
     <string name="freeware">免费软件</string>
     <string name="android_open_source_project">Android 开源项目</string>
     <string name="hphosts_ad_server_list">hpHosts 广告服务器列表</string>
@@ -166,7 +166,7 @@
     <string name="title_file_chooser">文件选择器</string>
     <string name="library_netcipher">NetCipher</string>
     <string name="license_gnu">GNU Lesser General Public License</string>
-    <string name="export_bookmarks">导出书签到备份文件</string>
+    <string name="bookmarks_export">导出书签到备份文件</string>
     <string name="import_backup">从备份文件导入书签</string>
     <string name="bookmark_export_path">书签已导出到</string>
     <string name="bookmark_settings">书签设置</string>

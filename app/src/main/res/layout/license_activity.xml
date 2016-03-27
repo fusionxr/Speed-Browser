@@ -7,7 +7,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="130dp"
+        android:layout_height="160dp"
         android:background="?attr/listChoiceBackgroundIndicator"
         android:orientation="vertical"
         android:paddingBottom="10dp"

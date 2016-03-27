@@ -6,7 +6,7 @@
     <string name="location">الوصول إلى موقعك</string>
     <string name="password">حفظ كلمات السر</string>
     <string name="agent">وكيل المستخدم</string>
-    <string name="history">مسح السجل</string>
+    <string name="clear_history">مسح السجل</string>
     <string name="email">راسلني</string>
     <string name="flash">تفعيل مشغل الفلاش</string>
     <string name="mobile">عرض بشكل الجوال</string>
@@ -27,11 +27,11 @@
     <string name="title_activity_new_settings">الإعدادات الجديدة</string>
     <string name="action_settings">الإعدادات</string>
     <string name="version">إصدار التطبيق</string>
-    <string name="cache"> مسح ذاكرة التخزين المؤقتة عند الخروج</string>
+    <string name="clear_cache_exit"> مسح ذاكرة التخزين المؤقتة عند الخروج</string>
     <string name="reflow">تفعيل إلتفاف النص</string>
     <string name="block">حظر الصور</string>
     <string name="window">السماح للمواقع بالفتح في نوافذ جديدة</string>
-    <string name="cookies">تفعيل ملفات تعريف الارتباط</string>
+    <string name="enable_cookies">تفعيل ملفات تعريف الارتباط</string>
     <string name="importbookmarks">استيراد العلامات المرجعية من المتصفح</string>
     <string name="size">حجم النص</string>
     <string name="recommended">(مستحسن)</string>

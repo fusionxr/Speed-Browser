@@ -7,7 +7,7 @@
     <string name="location">מאפשר לאתרים לגשת למיקומך</string>
     <string name="password">שמור את הסיסמאות שלך</string>
     <string name="agent">סוכן משתמש</string>
-    <string name="history">מחק הסטוריה ביציאה</string>
+    <string name="clear_history">מחק הסטוריה ביציאה</string>
     <string name="email">שלח לי דוא\"ל</string>
     <string name="flash">הפעל תכני פלאש (אם מותקן)</string>
     <string name="mobile">הצג כנייד</string>

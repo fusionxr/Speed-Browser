@@ -17,6 +17,8 @@
         <item name="dividerColor">@color/divider_light</item>
         <item name="popupMenuStyle">@style/PopupMenu</item>
         <item name="android:popupMenuStyle">@style/PopupMenu</item>
+        <item name="settingsBackground">@color/white</item>
+        <item name="settingsTextColor">@color/gray_dark</item>
         <item name="windowActionModeOverlay">true</item>
     </style>
 
@@ -38,6 +40,8 @@
         <item name="invertColorDrawable">@drawable/ic_action_invert_dark</item>
         <item name="textSizeDrawable">@drawable/ic_action_text_size_dark</item>
         <item name="dividerColor">@color/divider_dark</item>
+        <item name="settingsBackground">@color/secondary_color_settings_dark</item>
+        <item name="settingsTextColor">@color/white</item>
         <item name="windowActionModeOverlay">true</item>
     </style>
 
@@ -54,32 +58,32 @@
         <item name="progressBackgroundColor">#00000000</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="progressColor">@color/gray_medium</item>
-        <item name="numberColor">@color/gray_dark</item>
+        <item name="numberColor">@color/gray_medium_darkest</item>
         <item name="autoCompleteTitleColor">@color/black</item>
         <item name="autoCompleteUrlColor">@color/gray_medium</item>
         <item name="arrowBackDrawable">@drawable/ic_action_back</item>
         <item name="arrowForwardDrawable">@drawable/ic_action_forward</item>
-        <item name="actionOverflowButtonStyle">@style/lightOverFlowButton</item>
+        <item name="overflowSelector">@drawable/overflow_selector</item>
+        <item name="bookmarkSelector">@drawable/bookmark_selector</item>
+        <item name="infoSelector">@drawable/info_selector</item>
+        <item name="forwardSelector">@drawable/forward_selector</item>
+        <item name="overflowBackground">@drawable/overflow_shadow</item>
         <item name="drawerBackground">@color/drawer_background</item>
         <item name="plusDrawable">@drawable/ic_action_plus</item>
         <item name="upDrawable">@drawable/ic_action_collapse</item>
         <item name="deleteDrawable">@drawable/ic_action_delete</item>
-        <item name="starDrawable">@drawable/ic_action_star</item>
+        <item name="starDrawable">@drawable/ic_bookmark</item>
         <item name="dividerColor">@color/divider_light</item>
+        <item name="actionBar">@color/white</item>
+        <item name="barColor">@color/light_gray</item>
         <item name="tabDrawable">@drawable/ic_action_tabs_light</item>
         <item name="selectedBackground">@drawable/list_bg_light</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@color/secondary_color</item>
+        <item name="android:statusBarColor">@color/gray_dark</item>
         <item name="android:windowTranslucentStatus">false</item>
         <item name="popupMenuStyle">@style/PopupMenu</item>
         <item name="android:popupMenuStyle">@style/PopupMenu</item>
         <item name="windowActionModeOverlay">true</item>
-        <!-- READ THIS:
-            windowTranslucentStatus will set a semitransparent color to the status bar
-            primaryColorDark will set a color below the actual status bar color that
-                will be below the navigation drawers, but above the content of the app
-            windowDrawsSystemBarBackgrounds
-        -->
     </style>
 
     <style name="Theme.DarkTheme" parent="Theme.AppCompat">
@@ -95,22 +99,28 @@
         <item name="windowActionBar">false</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="progressColor">@color/gray_medium</item>
-        <item name="numberColor">@color/gray_dark</item>
+        <item name="numberColor">@color/white</item>
         <item name="autoCompleteTitleColor">@color/black</item>
         <item name="autoCompleteUrlColor">@color/gray_medium</item>
         <item name="arrowBackDrawable">@drawable/ic_action_back_dark</item>
         <item name="arrowForwardDrawable">@drawable/ic_action_forward_dark</item>
-        <item name="actionOverflowButtonStyle">@style/lightOverFlowButton</item>
         <item name="drawerBackground">@color/drawer_background_dark</item>
+        <item name="overflowBackground">@drawable/overflow_shadow_dark</item>
+        <item name="overflowSelector">@drawable/overflow_selector_dark</item>
+        <item name="forwardSelector">@drawable/forward_selector_dark</item>
+        <item name="bookmarkSelector">@drawable/bookmark_selector_dark</item>
+        <item name="infoSelector">@drawable/info_selector_dark</item>
         <item name="plusDrawable">@drawable/ic_action_plus_dark</item>
         <item name="upDrawable">@drawable/ic_action_collapse</item>
         <item name="deleteDrawable">@drawable/ic_action_delete_dark</item>
-        <item name="starDrawable">@drawable/ic_action_star_dark</item>
+        <item name="starDrawable">@drawable/ic_bookmark_dark</item>
         <item name="dividerColor">@color/divider_dark</item>
+        <item name="actionBar">@color/primary_color_dark</item>
+        <item name="barColor">@color/divider_dark</item>
         <item name="tabDrawable">@drawable/ic_action_tabs_dark</item>
         <item name="selectedBackground">@drawable/list_bg_dark</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@color/secondary_color</item>
+        <item name="android:statusBarColor">@color/gray_dark</item>
         <item name="android:windowTranslucentStatus">false</item>
         <item name="windowActionModeOverlay">true</item>
     </style>

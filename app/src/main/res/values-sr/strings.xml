@@ -31,7 +31,7 @@
     <string name="location">Приступ локацији</string>
     <string name="password">Сачувај лозинке</string>
     <string name="agent">Идентификација</string>
-    <string name="history">Очисти историјат</string>
+    <string name="clear_history">Очисти историјат</string>
     <string name="email">Контакт</string>
     <string name="flash">Адобов Флеш</string>
     <string name="mobile">Мобилни приказ</string>
@@ -52,11 +52,11 @@
     <string name="title_activity_new_settings">Нове поставке</string>
     <string name="action_settings">Поставке</string>
     <string name="version">Издање апликације</string>
-    <string name="cache">Очисти кеш по затварању</string>
+    <string name="clear_cache_exit">Очисти кеш по затварању</string>
     <string name="reflow">Прилагођавање текста</string>
     <string name="block">Блокирај слике</string>
     <string name="window">Дозволи сајтовима да отварају нове прозоре</string>
-    <string name="cookies">Омогући колачиће</string>
+    <string name="enable_cookies">Омогући колачиће</string>
     <string name="importbookmarks">Увези обележиваче из Прегледача</string>
     <string name="size">Величина текста</string>
     <string name="recommended">Препоручљиво</string>
@@ -128,7 +128,7 @@
     <string name="action_manual">Ручно</string>
     <string name="action_auto">Аутоматски</string>
     <string name="action_follow_me">Контактирајте ме</string>
-    <string name="url_twitter">twitter.com/ACRDevelopment</string>
+    <string name="url_twitter">chemxrs@gmail.com</string>
     <string name="clear_cache">Очисти кеш</string>
     <string name="message_cache_cleared">Кеш је очишћен</string>
     <string name="message_import">Обележивачи су увезени</string>
@@ -165,7 +165,7 @@
     <string name="folder_default">Подразумевана</string>
     <string name="folder_custom">Посебна</string>
     <string name="untitled">Неименована</string>
-    <string name="apache_license">Мозилина Јавна Лиценца в. 2.0</string>
+    <string name="mozilla_license">Мозилина Јавна Лиценца в. 2.0</string>
     <string name="freeware">Фривер</string>
     <string name="android_open_source_project">Андроид пројекат отвореног кôда</string>
     <string name="hphosts_ad_server_list">hpHosts списак рекламних сервера</string>
@@ -179,7 +179,7 @@
     <string name="title_file_chooser">Бирач фајлова</string>
     <string name="library_netcipher">NetCipher</string>
     <string name="license_gnu">Гнуова Мања општа јавна лиценца</string>
-    <string name="export_bookmarks">Извези обележиваче у резерву</string>
+    <string name="bookmarks_export">Извези обележиваче у резерву</string>
     <string name="import_backup">Увези обележиваче из резерве</string>
     <string name="bookmark_export_path">Обележивачи извезени у</string>
     <string name="bookmark_settings">Поставке обележивача</string>

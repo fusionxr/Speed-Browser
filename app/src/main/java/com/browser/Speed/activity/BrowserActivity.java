@@ -10,7 +10,6 @@ import android.content.res.Resources.Theme;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
@@ -19,12 +18,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.StateListDrawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
@@ -32,18 +31,18 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.DrawerLayout.DrawerListener;
-import android.support.v7.internal.widget.TintImageView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Editable;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.*;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
@@ -51,6 +50,7 @@ import android.view.View.OnKeyListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -58,27 +58,28 @@ import android.webkit.*;
 import android.webkit.WebChromeClient.CustomViewCallback;
 import android.webkit.WebView.HitTestResult;
 import android.widget.*;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TextView.OnEditorActionListener;
 
-import com.browser.Speed.database.BookmarkFolder;
-import com.browser.Speed.database.BookmarkItem;
-import com.browser.Speed.controller.BookmarkController;
-import com.browser.Speed.database.FileBookmarkManager;
+import com.browser.Speed.constant.StartPage;
+import com.browser.Speed.controller.BackListener;
+import com.browser.Speed.controller.IBookmarkManager;
+import com.browser.Speed.controller.SpeedHandler;
 import com.browser.Speed.database.HistoryManager;
-import com.browser.Speed.helper.ItemTouchHelperAdapter;
-import com.browser.Speed.helper.ItemTouchHelperViewHolder;
-import com.browser.Speed.helper.SimpleItemTouchHelperCallback;
+import com.browser.Speed.helper.AnimatorListener;
+import com.browser.Speed.object.ITabViewAdapter;
+import com.browser.Speed.object.TabViewAdapter;
+import com.browser.Speed.controller.ThreadExecutor;
+import com.browser.Speed.utils.AdBlock;
 import com.browser.Speed.utils.CustomViewPager;
+import com.browser.Speed.utils.ExceptionHandler;
+import com.browser.Speed.utils.PageSourceTask;
 import com.browser.Speed.view.AnimatedProgressBar;
-import com.browser.Speed.controller.BrowserController;
+import com.browser.Speed.controller.IBrowserController;
 import com.browser.Speed.object.ClickHandler;
 import com.browser.Speed.constant.Constants;
-import com.browser.Speed.database.HistoryDatabase;
+import com.browser.Speed.database.DatabaseManager;
 import com.browser.Speed.database.HistoryItem;
-import com.browser.Speed.constant.HistoryPage;
 import com.browser.Speed.view.XWebView;
 import com.browser.Speed.preference.PreferenceManager;
 import com.browser.Speed.R;
@@ -93,37 +94,46 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.*;
 
-public class BrowserActivity extends ThemableActivity implements BrowserController, OnClickListener {
+public class BrowserActivity extends ThemableActivity implements IBrowserController, OnClickListener {
 
-    // Layout
     private DrawerLayout mDrawerLayout;
+    private DrawerLocker mDrawerListener;
     private FrameLayout mWebViewFrame;
     private FrameLayout mMainLayout;
     private FullscreenHolder mFullscreenContainer;
-    private RecyclerView mNormalTabs, mIncognitoTabs;
-    private LinearLayout mRightDrawer, mLeftDrawer, mToolbarLayout, mSearchBox;
+    private RecyclerView mNormalTabs, mIncognitoTabs, mNormalTabs2, mIncognitoTabs2;
+    private LinearLayout mRightDrawer, mLeftDrawer, mSearchBox;
     private LinearLayoutManager mIncognitoManager, mTabManager;
-    private RelativeLayout mSearchBar;
+    private RelativeLayout mFindBar, mToolbarLayout, mPageInfoView;
     private EditText mFindEditText;
+    private TextView mPageInfoUrl;
     private String mFindText;
     private CustomViewPager mViewPager;
-    private int mToolbarHeight;
+    private PopupWindow mOverflowMenu;
+    private FrameLayout mPageInfoFrame;
+    private View mPageInfoShadow;
 
-    private final List<XWebView> mWebViews = new ArrayList<>();
-    private final List<XWebView> mIncognitoWebViews = new ArrayList<>();
-    private FileBookmarkManager mBookmarkManager;
+    private int mToolBarSize = Utils.convertDpToPixels(48);
+    private int mToolbarHeight = Utils.convertDpToPixels(56);
 
-    private XWebView mCurrentView;
+    private List<XWebView> mWebViews = new ArrayList<>();
+    private List<XWebView> mIncognitoWebViews = new ArrayList<>();
+    private IBookmarkManager mBookmarkManager;
+    private FileManager mFileManager;
+
+    public XWebView mCurrentView;
     private WebView mPreviousView;
 
     private AnimatedProgressBar mProgressBar;
-    private Animator.AnimatorListener mAnimEndListener;
+    private GestureDetector mSwipeListener;
     private AutoCompleteTextView mSearch;
-    private ImageView mTabCounter, mOverlay;
+    private ImageView mTabButton, mTopTabButton, mOverflowIcon;
     private VideoView mVideoView;
     private View mCustomView, mVideoProgressView;
 
-    private LightningViewAdapter mTabsAdapter, mIncognitoAdapter;
+    private ITabViewAdapter mTabsAdapter, mIncognitoAdapter;
+    private TabViewAdapter mTabsAdapter1, mIncognitoAdapter1;
+    private BottomDrawerManager mBottomDrawerManager;
     private SearchAdapter mSearchAdapter;
 
     private ClickHandler mClickHandler;
@@ -133,26 +143,28 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
 
     private Activity mActivity;
 
-    private boolean mSystemBrowser = false, mIsNewIntent = false, mFullScreen, mDarkTheme, mExitOnTabClose, mTabButtonSwiped;
+    private boolean mSystemBrowser = false, mIsNewIntent = false;
+    private boolean mBottomLayout, mBottomDrawerOpen, mOpenLinkBackground, mExitOnTabClose, mDarkTheme, mTabButtonSwiped;
     private int mOriginalOrientation, mBackgroundColor, mIdGenerator;
-    private int mNumberColor, mHighlight;
+    private int mNumberColor, mHighlight, mLight;
+    private Drawable mWhite, mGrey, mDark;
     private String mSearchText, mUntitledTitle, mHomepage, mCameraPhotoPath;
 
-    private HistoryDatabase mHistoryDatabase;
+    private DatabaseManager mDatabaseManager;
     private HistoryManager mHistoryManager;
     private RelativeLayout mHistoryPage;
+    private AlertDialog mClearHistoryDialog;
     private String mHistoryUrl = "file://history.html";
     private PreferenceManager mPreferences;
 
     private Bitmap mDefaultVideoPoster, mWebpageBitmap;
     private final ColorDrawable mBackground = new ColorDrawable();
     private Drawable mDeleteIcon, mRefreshIcon, mCopyIcon, mPasteIcon, mIcon;
-    private TintImageView mOverflowIcon;
+    //private TintImageView mOverflowIcon;
 
     private static final int API = android.os.Build.VERSION.SDK_INT;
     private static final LayoutParams MATCH_PARENT = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
     private static final FrameLayout.LayoutParams COVER_SCREEN_PARAMS = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-    private int mToolBarSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,12 +175,28 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
     @SuppressLint("NewApi")
     @SuppressWarnings("deprecation")
     private synchronized void initialize() {
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        ActionBar actionBar = getSupportActionBar();
+        if(!(Thread.getDefaultUncaughtExceptionHandler() instanceof ExceptionHandler)) {
+            Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
+        }
+        mWebpageBitmap = Utils.getWebpageBitmap(getResources(), mDarkTheme);
 
         mPreferences = PreferenceManager.getInstance();
+        if (mPreferences.getBottomDrawerEnabled()) {
+            setContentView(R.layout.activity_main1);
+            mMainLayout = (FrameLayout) findViewById(R.id.main_layout);
+            mBottomDrawerManager = new BottomDrawerManager(this, mMainLayout, mWebViews, mIncognitoWebViews);
+            mBookmarkManager = XBookmarkManager.getInstance();
+        }
+        else {
+            setContentView(R.layout.activity_main);
+            mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+            mBookmarkManager = new BookmarkManager(this, mDrawerLayout);
+            mFileManager = new FileManager(this, mDrawerLayout);
+            initDrawerLayout();
+        }
+
+        Utils.initToastLayout(getLayoutInflater());
+
         mDarkTheme = mPreferences.getUseDarkTheme();
         mActivity = this;
         mWebViews.clear();
@@ -176,135 +204,39 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
 
         mClickHandler = new ClickHandler(this);
         mMainLayout = (FrameLayout) findViewById(R.id.main_layout);
-        mWebViewFrame = (FrameLayout) findViewById(R.id.content_frame);
-        mToolbarLayout = (LinearLayout) findViewById(R.id.toolbar_layout);
+        mToolbarLayout = (RelativeLayout) findViewById(R.id.toolbar_layout);
+        mWebViewFrame = (FrameLayout) findViewById(R.id.webview_frame);
+
         mBackground.setColor(((ColorDrawable) mToolbarLayout.getBackground()).getColor());
 
         mProgressBar = (AnimatedProgressBar) findViewById(R.id.progress_view);
 
-        mToolBarSize = Utils.convertDpToPixels(48);
-        mToolbarHeight = Utils.convertDpToPixels(56);
         initFindInPage();
 
-        RelativeLayout newTab = (RelativeLayout) findViewById(R.id.new_tab_button);
-
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);mRightDrawer = (LinearLayout) findViewById(R.id.right_drawer);
-        mRightDrawer.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-
-        mLeftDrawer = (LinearLayout) findViewById(R.id.left_drawer);
-        mLeftDrawer.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-
-        setDrawerMargin(mToolbarHeight);
-        if (mPreferences.getFullScreenEnabled()){
-            DrawerLayout.LayoutParams params = (DrawerLayout.LayoutParams) mWebViewFrame.getLayoutParams();
-            params.topMargin = 0;
-            mWebViewFrame.setLayoutParams(params);
-        }
-        else {
-            DrawerLayout.LayoutParams params = (DrawerLayout.LayoutParams) mWebViewFrame.getLayoutParams();
-            params.topMargin = mToolbarHeight;
-            mWebViewFrame.setLayoutParams(params);
-        }
-
-        setNavigationDrawerWidth();
-        mDrawerLayout.setDrawerListener(new DrawerLocker());
-
-        mWebpageBitmap = Utils.getWebpageBitmap(getResources(), mDarkTheme);
         mHomepage = mPreferences.getHomepage();
 
-
-
-        mBookmarkManager = new FileBookmarkManager(this, mDrawerLayout);
-
-        mNormalTabs = (RecyclerView) getLayoutInflater().inflate(R.layout.tab_listview, null);
-        mIncognitoTabs = (RecyclerView) getLayoutInflater().inflate(R.layout.tab_listview, null);
-
-        mTabsAdapter = new LightningViewAdapter(this, R.layout.tab_list_item, mWebViews);
-        mNormalTabs.setAdapter(mTabsAdapter);
-        mNormalTabs.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
-        mNormalTabs.setHasFixedSize(true);
-        mTabManager = new LinearLayoutManager(mActivity);
-        mTabManager.setStackFromEnd(true);
-        mNormalTabs.setLayoutManager(mTabManager);
-        mNormalTabs.getItemAnimator().setRemoveDuration(100);
-        mNormalTabs.getItemAnimator().setMoveDuration(140);
-        ((SimpleItemAnimator) mNormalTabs.getItemAnimator()).setSupportsChangeAnimations(false);
-
-        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(mTabsAdapter);
-        ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(callback);
-        mItemTouchHelper.attachToRecyclerView(mNormalTabs);
-
-        mIncognitoAdapter = new LightningViewAdapter(this, R.layout.tab_list_item, mIncognitoWebViews);
-        mIncognitoTabs.setAdapter(mIncognitoAdapter);
-
-        mIncognitoTabs.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
-        mIncognitoTabs.setHasFixedSize(true);
-
-        mIncognitoManager = new LinearLayoutManager(mActivity);
-        mIncognitoManager.setStackFromEnd(true);
-        mIncognitoTabs.setLayoutManager(mIncognitoManager);
-        mIncognitoTabs.getItemAnimator().setRemoveDuration(100);
-        mIncognitoTabs.getItemAnimator().setMoveDuration(140);
-        ((SimpleItemAnimator) mIncognitoTabs.getItemAnimator()).setSupportsChangeAnimations(false);
-
-        callback = new SimpleItemTouchHelperCallback(mIncognitoAdapter);
-        mItemTouchHelper = new ItemTouchHelper(callback);
-        mItemTouchHelper.attachToRecyclerView(mIncognitoTabs);
-
-        try { mHistoryDatabase = HistoryDatabase.getInstance(getApplicationContext()); }
+        try { mDatabaseManager = DatabaseManager.getInstance(getApplicationContext()); }
         catch (Exception e) {}
 
         mHistoryManager = new HistoryManager(this, getLayoutInflater());
-        mHistoryUrl = HistoryPage.initHistoryPage(this);
-
-        // set display options of the ActionBar
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayShowHomeEnabled(false);
-        actionBar.setDisplayShowCustomEnabled(true);
-        actionBar.setCustomView(R.layout.toolbar_content);
+        mHistoryUrl = HistoryManager.initHistoryPage(this);
 
         mSearchBox = (LinearLayout) findViewById(R.id.search_box);
 
-        final View v = actionBar.getCustomView();
-        LayoutParams lp = v.getLayoutParams();
-        lp.width = LayoutParams.MATCH_PARENT;
-        v.setLayoutParams(lp);
+        mTopTabButton = (ImageView) findViewById(R.id.tabs_button);//actionBar.getCustomView().findViewById(R.id.tabs_button);
+        mTopTabButton.setLayerType(View.LAYER_TYPE_NONE, null);
+        mTabButton = mTopTabButton;
 
-        mTabCounter = (ImageView) actionBar.getCustomView().findViewById(R.id.tabCount);
-        mTabCounter.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        final LinearLayout tabButton = (LinearLayout) actionBar.getCustomView().findViewById(R.id.tabs_button);
-        //tabButton.setOnClickListener(this);
-        final GestureDetector gestureDetector = new GestureDetector(new OnSwipeListener());
-        tabButton.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent event) {
-                gestureDetector.onTouchEvent(event);
-                if(event.getAction() == MotionEvent.ACTION_DOWN) {
-                    view.setPressed(true);
-                    mTabButtonSwiped = false;
-                }
-                else if (event.getAction() == MotionEvent.ACTION_UP) {
-                    view.setPressed(false);
-                    if (!mTabButtonSwiped) {
-                        openTabDrawer();
-                    }
-                }
-                return true;
-            }
-        });
+        mSwipeListener = new GestureDetector(new OnSwipeListener());
+        if (mPreferences.getSwipeTabsEnabled()) mTabButton.setOnTouchListener(new TabButtonSwipeListener());
+        else mTabButton.setOnTouchListener(new TabButtonListener());
 
-        RelativeLayout back = (RelativeLayout) findViewById(R.id.action_back);
-        back.setOnClickListener(this);
-
-        RelativeLayout forward = (RelativeLayout) findViewById(R.id.action_forward);
-        forward.setOnClickListener(this);
-
-        // create the search EditText in the ToolBar
-        mSearch = (AutoCompleteTextView) actionBar.getCustomView().findViewById(R.id.search);
+        mSearch = (AutoCompleteTextView) findViewById(R.id.search);
         mUntitledTitle = getString(R.string.untitled);
         mBackgroundColor = getResources().getColor(R.color.primary_color);
         mNumberColor = getResources().getColor(R.color.tabs);
         mHighlight = getResources().getColor(R.color.accent_color);
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             mDeleteIcon = getResources().getDrawable(R.drawable.ic_action_delete);
             mRefreshIcon = getResources().getDrawable(R.drawable.ic_action_refresh);
@@ -319,6 +251,17 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
             mPasteIcon = getResources().getDrawable(R.drawable.ic_action_paste, theme);
         }
 
+        mOverflowIcon = (ImageView)findViewById(R.id.overflow_icon);//new TintImageView(this);
+//        StateListDrawable states = new StateListDrawable();
+//        states.addState(new int[]{android.R.attr.state_pressed}, getResources().getDrawable(R.drawable.overflow_highlight));
+//        if (mDarkTheme) states.addState(new int[] { }, getResources().getDrawable(R.drawable.overflow_white));
+//        else states.addState(new int[]{}, getResources().getDrawable(R.drawable.overflow));
+//        mOverflowIcon.setImageDrawable(states);
+
+        initOverflowMenu();
+        initPageInfoMenu();
+        initLongClickDialogs();
+
         int iconBounds = Utils.convertDpToPixels(24);
         mDeleteIcon.setBounds(0, 0, iconBounds, iconBounds);
         mRefreshIcon.setBounds(0, 0, iconBounds, iconBounds);
@@ -332,6 +275,17 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
         mSearch.setOnEditorActionListener(search.new EditorActionListener());
         mSearch.setOnTouchListener(search.new TouchListener());
 
+        if (API >= Build.VERSION_CODES.LOLLIPOP){
+            mWhite = new ColorDrawable(Color.WHITE);
+            mGrey = new ColorDrawable(Color.LTGRAY);
+            mDark = new ColorDrawable(Color.GRAY);
+        }
+        else {
+            mWhite = ContextCompat.getDrawable(this, R.drawable.card_bg);
+            mDark =  ContextCompat.getDrawable(this, R.drawable.card_bg_incognito);
+            mGrey =  ContextCompat.getDrawable(this, R.drawable.card_bg_dark);
+        }
+
         mSystemBrowser = getSystemBrowser();
         Thread initialize = new Thread(new Runnable() {
 
@@ -344,6 +298,38 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
         });
         initialize.run();
 
+        initializePreferences();
+        initializeTabCounter();
+        initializeTabs();
+
+        if (API <= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            WebIconDatabase.getInstance().open(getDir("icons", MODE_PRIVATE).getPath());
+        }
+
+    }
+
+    private void initDrawerLayout(){
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout.setScrimColor(Color.TRANSPARENT);
+        mRightDrawer = (LinearLayout) findViewById(R.id.right_drawer);
+        mRightDrawer.setLayerType(View.LAYER_TYPE_NONE, null);
+
+        mLeftDrawer = (LinearLayout) findViewById(R.id.left_drawer);
+        mLeftDrawer.setLayerType(View.LAYER_TYPE_NONE, null);
+
+        setDrawerMargin(mToolbarHeight);
+
+        setNavigationDrawerWidth();
+        mDrawerLayout.setDrawerListener(mDrawerListener = new DrawerLocker());
+
+        ImageView back = (ImageView) findViewById(R.id.action_back);
+        back.setOnClickListener(this);
+
+        ImageView forward = (ImageView) findViewById(R.id.action_forward);
+        forward.setOnClickListener(this);
+
+        ImageView newTab = (ImageView) findViewById(R.id.new_tab_button);
         newTab.setOnClickListener(this);
         newTab.setOnLongClickListener(new OnLongClickListener() {
 
@@ -351,8 +337,8 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
             public boolean onLongClick(View v) {
                 String url = mPreferences.getSavedUrl();
                 if (url != null) {
-                    newTab(url, true, false, true, false);
-                    Toast.makeText(mActivity, R.string.deleted_tab, Toast.LENGTH_SHORT).show();
+                    newTab(url, false, -1, false);
+                    Utils.showToast(mActivity, R.string.deleted_tab);
                 }
                 mPreferences.setSavedUrl(null);
                 return true;
@@ -365,40 +351,21 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
         TabLayout mTabLayout = (TabLayout) findViewById(R.id.tabs);
         mTabLayout.setupWithViewPager(mViewPager);
 
-        mOverflowIcon = new TintImageView(this);
-        initializeTabCounter();
-        initializeTabs();
+        mNormalTabs = (RecyclerView) getLayoutInflater().inflate(R.layout.tab_listview, null);
+        mIncognitoTabs = (RecyclerView) getLayoutInflater().inflate(R.layout.tab_listview, null);
 
-        if (API <= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            WebIconDatabase.getInstance().open(getDir("icons", MODE_PRIVATE).getPath());
-        }
+        mTabsAdapter1 = new TabViewAdapter(this,  mViewPager, mNormalTabs, R.layout.tab_list_item, mWebViews, false);
 
-        final String overflowDesc = getString(R.string.overflow_id);
-        final ViewGroup decor = (ViewGroup) getWindow().getDecorView();
-        decor.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                final ArrayList<View> outViews = new ArrayList<>();
-                decor.findViewsWithText(outViews, overflowDesc, View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION);
-                if (outViews.isEmpty()) return;
-                mOverflowIcon = (TintImageView) outViews.get(0);
-            }
+        mTabManager = new LinearLayoutManager(mActivity);
+        mTabManager.setStackFromEnd(true);
+        mNormalTabs.setLayoutManager(mTabManager);
 
-        }, 1000);
+        mIncognitoAdapter1 = new TabViewAdapter(this,  mViewPager, mIncognitoTabs, R.layout.tab_list_item, mIncognitoWebViews, true);
+        mIncognitoAdapter = mIncognitoAdapter1;
 
-        initializePreferences();
-        mAnimEndListener = new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mWebViewFrame.removeView(mPreviousView);
-            }
-            @Override
-            public void onAnimationStart(Animator animation) {}
-            @Override
-            public void onAnimationCancel(Animator animation) {}
-            @Override
-            public void onAnimationRepeat(Animator animation) {}
-        };
+        mIncognitoManager = new LinearLayoutManager(mActivity);
+        mIncognitoManager.setStackFromEnd(true);
+        mIncognitoTabs.setLayoutManager(mIncognitoManager);
     }
 
     private void setupViewPager(CustomViewPager viewPager) {
@@ -506,14 +473,7 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
         public class FocusChangeListener implements OnFocusChangeListener {
             @Override
             public void onFocusChange(View v, final boolean hasFocus) {
-                if (!hasFocus && mCurrentView != null) {
-                    if (mCurrentView.getProgress() < 100) {
-                        setIsLoading();
-                    }
-                    else setIsFinishedLoading();
-                    updateUrl(mCurrentView.getUrl(), false);
-                }
-                else if (hasFocus) {
+                if (hasFocus) {
                     mSearch.addTextChangedListener(textWatcher);
                     String url = mCurrentView.getUrl();
                     if (url == null || url.startsWith(Constants.FILE)) {
@@ -527,15 +487,31 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
                         mSearch.setCompoundDrawables(null, null, mCopyIcon, null);
                     }
                     ((AutoCompleteTextView) v).selectAll(); // Hack to make sure the text gets selected
+                    setBackListener(listener);
                 }
-                if (!hasFocus) {
+                else {
                     mSearch.removeTextChangedListener(textWatcher);
                     mIcon = mRefreshIcon;
                     mSearch.setCompoundDrawables(null, null, mRefreshIcon, null);
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(mSearch.getWindowToken(), 0);
+                    if (mCurrentView != null) {
+                        if (mCurrentView.getProgress() < 100) {
+                            setIsLoading();
+                        }
+                        else setIsFinishedLoading();
+                        updateUrl(mCurrentView.getUrl(), false);
+                    }
+                    setBackListener(mDefaultBackListener);
                 }
             }
+
+            BackListener listener = new BackListener() {
+                @Override public void onBackPressed() {
+                    mCurrentView.requestFocus();
+                    mBackListener = mDefaultBackListener;
+                }
+            };
         }
 
         public class TouchListener implements OnTouchListener {
@@ -574,6 +550,8 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
         }
     }
 
+    public DrawerLocker getDrawerListener(){ return mDrawerListener; }
+
     private class DrawerLocker implements DrawerListener {
 
         @Override
@@ -582,21 +560,38 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, mRightDrawer);
             }
             else mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, mLeftDrawer);
+            setBackListener(mDefaultBackListener);
         }
 
         @Override
         public void onDrawerOpened(View v) {
             if (v == mLeftDrawer) {
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, mRightDrawer);
+                setBackListener(leftDrawer);
             }
-            else mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, mLeftDrawer);
+            else {
+                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, mLeftDrawer);
+                setBackListener(rightDrawer);
+            }
         }
 
-        @Override
-        public void onDrawerSlide(View v, float arg) {}
+        BackListener leftDrawer = new BackListener() {
+            @Override public void onBackPressed() {
+                mDrawerLayout.closeDrawer(mLeftDrawer);
+                mBackListener = mDefaultBackListener;
+            }
+        };
 
-        @Override
-        public void onDrawerStateChanged(int arg) {}
+        BackListener rightDrawer = new BackListener() {
+            @Override
+            public void onBackPressed() {
+                mDrawerLayout.closeDrawer(mRightDrawer);
+                mBackListener = mDefaultBackListener;
+            }
+        };
+
+        @Override public void onDrawerSlide(View v, float arg) {}
+        @Override public void onDrawerStateChanged(int arg) {}
 
     }
 
@@ -636,16 +631,20 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
     private Paint textPaint;
     private int xPos;
     private int yPos;
+    private float radius;
     private RectF rect;
 
     private void initializeTabCounter(){
-        Bitmap bm = Bitmap.createBitmap(mToolBarSize, mToolBarSize, Bitmap.Config.ARGB_8888);
+        Bitmap bm = Bitmap.createBitmap(mToolBarSize, mToolBarSize, Bitmap.Config.ARGB_4444);
+        Canvas canvas = new Canvas(bm);
         strokePaint = new Paint();
 
         strokePaint.setTextAlign(Paint.Align.CENTER);
         strokePaint.setStyle(Paint.Style.STROKE);
-        float x = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics());
-        strokePaint.setStrokeWidth(x);
+        //float x = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics());
+        float width = Utils.convertDpToPixels(1.6f);
+        strokePaint.setStrokeWidth(width);
+        radius = Utils.convertDpToPixels(0.6f);
 
         textPaint = new Paint();
 
@@ -654,14 +653,32 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
         textPaint.setStyle(Paint.Style.FILL);
         textPaint.setFakeBoldText(true);
 
-        textPaint.setTextSize(mToolBarSize /4);
+        textPaint.setTextSize(Utils.convertDpToPixels(11));
 
-        Canvas canvas = new Canvas(bm);
+        int paddingX = Utils.convertDpToPixels(16);
+        int paddingY = Utils.convertDpToPixels(15);
 
-        xPos = ((canvas.getWidth() / 2)- (int) ((2*x)+(x/2)));
-        yPos = (int) ((canvas.getHeight() / 2) - ((textPaint.descent() + textPaint.ascent()) / 2)+(int)(x+(x/3)));
+        xPos = (int)Utils.convertDpToPixels(23.5f);//- (int) ((2*x)+(x/2)));
+        yPos = canvas.getHeight() - (int)Utils.convertDpToPixels(20.5f);//+(int)(x+(x/3)));
 
-        rect = new RectF( (canvas.getHeight()/5),(canvas.getHeight()/3),(canvas.getHeight()*3/5),(canvas.getHeight()*3/4));
+        rect = new RectF(paddingX, paddingY, canvas.getWidth()-paddingX, canvas.getHeight()-paddingX);
+    }
+
+    public void setTabButton(ImageView view){
+        RelativeLayout.LayoutParams sParams = (RelativeLayout.LayoutParams) mSearchBox.getLayoutParams();
+        if (view == null || view == mTopTabButton) {
+            mTabButton = mTopTabButton;
+            mTabButton.setVisibility(View.VISIBLE);
+            sParams.rightMargin = Utils.convertDpToPixels(96);
+            mSearchBox.setLayoutParams(sParams);
+        }
+        else {
+            mTopTabButton.setVisibility(View.GONE);
+            mTabButton = view;
+            sParams.rightMargin = Utils.convertDpToPixels(40);
+            mSearchBox.setLayoutParams(sParams);
+        }
+        if (mCurrentView != null) writeTabCount(0);
     }
 
     private void writeTabCount(int backgroundTab) {
@@ -687,9 +704,9 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
             textPaint.setColor(backgroundTab);
         }
         Canvas canvas = new Canvas(bm);
-        canvas.drawRoundRect(rect, 3, 3, strokePaint);
+        canvas.drawRoundRect(rect, radius, radius, strokePaint);
         canvas.drawText(text, xPos, yPos, textPaint);
-        mTabCounter.setImageDrawable(new BitmapDrawable(getResources(), bm));
+        mTabButton.setImageDrawable(new BitmapDrawable(getResources(), bm));
     }
 
     public boolean IsIncognitoMode(){
@@ -723,60 +740,84 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
                     if (url != null && url.compareTo(urlString) == 0) {
                         url = null;
                     }
-                    newTab(urlString, true, false, true, false);
+                    newTab(urlString, false, -1, false);
                     count++;
                 }
             }
-            if (url != null) newTab(url, true, false, true, false);
-            else if (count == 0) newTab(null, true, false, true, false);
+            if (url != null) newTab(url, false, -1, false);
+            else if (count == 0) newTab(null, false, -1, false);
         }
-        else newTab(url, true, false, true, false);
+        else newTab(url, false, -1, false);
+        mTabsAdapter.dataSetChanged();
     }
+
+    private boolean mSettingsChanged;
 
     public void initializePreferences() {
         if (mPreferences == null) {
             mPreferences = PreferenceManager.getInstance();
         }
-        mFullScreen = mPreferences.getFullScreenEnabled();
-        showToolbar();
-        if (mFullScreen){
-            DrawerLayout.LayoutParams params = (DrawerLayout.LayoutParams) mWebViewFrame.getLayoutParams();
-            params.topMargin = 0;
+        if (mPreferences.getRestartActivity()) {
+            mPreferences.setRestartActivity(false);
+            DatabaseManager.setRestarting(true);
+            restart();
+            return;
+        }
+        if (mPreferences.getSwipeTabsEnabled()) {
+            mTabButton.setOnTouchListener(new TabButtonSwipeListener());
+        }
+        else mTabButton.setOnTouchListener(new TabButtonListener());
+        boolean mFullScreen = mPreferences.getFullScreenEnabled();
+        mOpenLinkBackground = mPreferences.getOpenLinksBackground();
+        if (mPreferences.getBottomDrawerEnabled()){
+            mBottomDrawerManager.initialize(!mSettingsChanged); //
+            mBottomLayout = true;
+            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mWebViewFrame.getLayoutParams();
+            if (mFullScreen) {
+//                params.topMargin = 0;
+//                mMainLayout.removeView(mWebViewFrame);
+//                mWebViewFrame = (FrameLayout) getLayoutInflater().inflate(R.layout.webview_frame, null);
+//                mMainLayout.addView(mWebViewFrame, 0, MATCH_PARENT);
+            }
+            else params.topMargin = mToolbarHeight;
             mWebViewFrame.setLayoutParams(params);
         }
-        else {
-            setDrawerMargin(mToolbarHeight);
+        else{
+            mBottomLayout = false;
+            setTabButton(mTopTabButton);
+            mTabsAdapter = mTabsAdapter1;
+            mIncognitoAdapter = mIncognitoAdapter1;
+            mTabsAdapter.notifyDataSetChanged();
+            mIncognitoAdapter.notifyDataSetChanged();
             DrawerLayout.LayoutParams params = (DrawerLayout.LayoutParams) mWebViewFrame.getLayoutParams();
-            params.topMargin = mToolbarHeight;
+            if (mFullScreen) params.topMargin = 0;
+            else params.topMargin = mToolbarHeight;
             mWebViewFrame.setLayoutParams(params);
+
+            if (mPreferences.getStackTabsTop()){
+                mIncognitoManager.setStackFromEnd(false);
+                mTabManager.setStackFromEnd(false);
+                mIncognitoTabs.setLayoutManager(mIncognitoManager);
+                mNormalTabs.setLayoutManager(mTabManager);
+            }
+            else {
+                mIncognitoManager.setStackFromEnd(true);
+                mTabManager.setStackFromEnd(true);
+                mIncognitoTabs.setLayoutManager(mIncognitoManager);
+                mNormalTabs.setLayoutManager(mTabManager);
+            }
         }
         mExitOnTabClose = mPreferences.getExitOnTabClose();
-        if (mPreferences.getStackTabsTop()){
-            mIncognitoManager.setStackFromEnd(false);
-            mTabManager.setStackFromEnd(false);
-            mIncognitoTabs.setLayoutManager(mIncognitoManager);
-            mNormalTabs.setLayoutManager(mTabManager);
-        }
-        else {
-            mIncognitoManager.setStackFromEnd(true);
-            mTabManager.setStackFromEnd(true);
-            mIncognitoTabs.setLayoutManager(mIncognitoManager);
-            mNormalTabs.setLayoutManager(mTabManager);
-        }
-
 
         if (mPreferences.getHideStatusBarEnabled()) {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
-        else {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
+        else getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         switch (mPreferences.getSearchChoice()) {
             case 0:
                 mSearchText = mPreferences.getSearchUrl();
-                if (!mSearchText.startsWith(Constants.HTTP)
-                        && !mSearchText.startsWith(Constants.HTTPS)) {
+                if (!mSearchText.startsWith(Constants.HTTP) && !mSearchText.startsWith(Constants.HTTPS)) {
                     mSearchText = Constants.GOOGLE_SEARCH;
                 }
                 break;
@@ -792,6 +833,8 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
             case 10: { mSearchText = Constants.YANDEX_SEARCH; break; }
         }
         updateCookiePreference();
+        StartPage.initHomepage(this);
+        mSettingsChanged = false;
     }
 
     /*
@@ -815,124 +858,48 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
         return super.onKeyDown(keyCode, event);
     }
 
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_MENU) && (Build.VERSION.SDK_INT <= 16)
-                && (Build.MANUFACTURER.compareTo("LGE") == 0)) {
-            // Workaround for stupid LG devices that crash
-            openOptionsMenu();
-            return true;
-        }
-        return super.onKeyUp(keyCode, event);
-    }
+//    @Override
+//    public boolean onKeyUp(int keyCode, KeyEvent event) {
+//        if ((keyCode == KeyEvent.KEYCODE_MENU) && (Build.VERSION.SDK_INT <= 16)
+//                && (Build.MANUFACTURER.compareTo("LGE") == 0)) {
+//            // Workaround for stupid LG devices that crash
+//            //openOptionsMenu();
+//            return true;
+//        }
+//        return super.onKeyUp(keyCode, event);
+//    }
 
     @Override
     public boolean onPrepareOptionsMenu (Menu menu) {
-        MenuItem item = menu.findItem(R.id.action_desktop_mode);
-        item.setChecked(mCurrentView.isDesktopMode());
-        return true;
+        return false;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action buttons
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                if (mDrawerLayout.isDrawerOpen(mLeftDrawer)) {
-                    mDrawerLayout.closeDrawer(mLeftDrawer);
-                }
-                return true;
-            case R.id.action_back:
-                if (mCurrentView != null) {
-                    if (mCurrentView.canGoBack()) {
-                        mCurrentView.goBack();
-                    }
-                }
-                return true;
-            case R.id.action_forward:
-                if (mCurrentView != null) {
-                    if (mCurrentView.canGoForward()) {
-                        mCurrentView.goForward();
-                    }
-                }
-                return true;
-            case R.id.action_new_tab:
-                newTab(null, true, false, true, false);
-                return true;
-            case R.id.incognito_tab:
-                newTab(null, true, false, false, true);
-                mViewPager.setCurrentItem(1);
-                return true;
-            case R.id.action_share:
-                if (!mCurrentView.getUrl().startsWith(Constants.FILE)) {
-                    Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
-                    shareIntent.setType("text/plain");
-                    shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
-                            mCurrentView.getTitle());
-                    String shareMessage = mCurrentView.getUrl();
-                    shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareMessage);
-                    startActivity(Intent.createChooser(shareIntent,
-                            getResources().getString(R.string.dialog_title_share)));
-                }
-                return true;
-            case R.id.action_bookmarks:
-                openBookmarks();
-                return true;
-
-            case R.id.action_settings:
-                startActivity(new Intent(this, SettingsActivity.class));
-                return true;
-            case R.id.action_history:
-                openHistory();
-                return true;
-            case R.id.action_add_bookmark:
-                if (!mCurrentView.getUrl().startsWith(Constants.FILE)) {
-                    mBookmarkManager.BookmarkPage(mCurrentView.getTitle(), mCurrentView.getUrl());
-                }
-                return true;
-            case R.id.action_desktop_mode:
-                if (item.isChecked()) {
-                    item.setChecked(false);
-                    mCurrentView.setUserAgent(1);
-                }
-                else {
-                    item.setChecked(true);
-                    mCurrentView.setUserAgent(2);
-                }
-                mCurrentView.reload();
-                return true;
-            case R.id.action_rendering_mode:
-                PopupMenu popupMenu = new PopupMenu(this, mOverflowIcon);
-                popupMenu.inflate(R.menu.rendering);
-                popupMenu.show();
-                return true;
-            case R.id.action_find:
-                mMainLayout.removeView(mSearchBar);
-                mMainLayout.addView(mSearchBar);
-                return true;
-            case R.id.action_reading_mode:
-                Intent read = new Intent(this, ReadingActivity.class);
-                read.putExtra(Constants.LOAD_READING_URL, mCurrentView.getUrl());
-                startActivity(read);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+    private void showKeyBoardDelayed(){
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(mFindEditText, InputMethodManager.SHOW_IMPLICIT);
+            }
+        }, 150);
     }
 
     private void initFindInPage() {
-        mSearchBar = (RelativeLayout) getLayoutInflater().inflate(R.layout.find_in_page, null);
-        mMainLayout.addView(mSearchBar);
+        mFindBar = (RelativeLayout) getLayoutInflater().inflate(R.layout.find_in_page, null);
+        mMainLayout.addView(mFindBar);
 
-        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mSearchBar.getLayoutParams();
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mFindBar.getLayoutParams();
         params.height = mToolbarHeight;
-        mSearchBar.setLayoutParams(params);
+        mFindBar.setLayoutParams(params);
 
         mFindEditText = (EditText) findViewById(R.id.search_query);
         mFindEditText.setOnEditorActionListener(new EditText.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                if (actionId == EditorInfo.IME_ACTION_GO || actionId == EditorInfo.IME_ACTION_DONE
+                        || actionId == EditorInfo.IME_ACTION_NEXT
+                        || actionId == EditorInfo.IME_ACTION_SEND
+                        || actionId == EditorInfo.IME_ACTION_SEARCH) {
                     mCurrentView.find(mFindText = mFindEditText.getText().toString());
                     return true;
                 }
@@ -949,10 +916,10 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
         ImageButton quit = (ImageButton) findViewById(R.id.button_quit);
         quit.setOnClickListener(this);
 
-        mMainLayout.removeView(mSearchBar);
+        mMainLayout.removeView(mFindBar);
     }
 
-    private void showCloseDialog(final int position) {
+    private void showCloseDialog(final int position, final boolean incognito) {
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(mActivity,
                 android.R.layout.simple_dropdown_item_1line);
@@ -964,7 +931,7 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case 0:
-                        deleteTab(position);
+                        deleteTab(position, incognito);
                         break;
                     case 1:
                         closeBrowser();
@@ -977,51 +944,32 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
         builder.show();
     }
 
-    /**
-     * The click listener for ListView in the navigation drawer
-     */
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-
+    Animator.AnimatorListener mAnimEndListener = new Animator.AnimatorListener() {
         @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            mIsNewIntent = false;
-            showTab(mWebViews.get(position), true);
+        public void onAnimationEnd(Animator animation) {
+            mWebViewFrame.removeView(mPreviousView);
         }
-    }
-
-    private class TabDrawerItemClickListener implements OnClickListener {
-
         @Override
-        public void onClick(View v) {
-            if (IsIncognitoMode()){
-                int position = mIncognitoTabs.getChildAdapterPosition(v);
-                if (mCurrentView != mIncognitoWebViews.get(position)) {
-                    mIsNewIntent = false;
-                    showTab(mIncognitoWebViews.get(position), true);
-                }
-            }
-            else {
-                int position = mNormalTabs.getChildAdapterPosition(v);
-                if (mCurrentView != mWebViews.get(position)) {
-                    mIsNewIntent = false;
-                    showTab(mWebViews.get(position), true);
-                }
-            }
-        }
-    }
-
-    private class TabDrawerItemLongClickListener implements OnLongClickListener {
-
+        public void onAnimationStart(Animator animation) {}
         @Override
-        public boolean onLongClick(View v) {
-            int position = mNormalTabs.getChildAdapterPosition(v);
-            showCloseDialog(position);
-            return true;
+        public void onAnimationCancel(Animator animation) {}
+        @Override
+        public void onAnimationRepeat(Animator animation) {}
+    };
+
+    private synchronized void showTabAnimated(List<XWebView> list, int index, Direction direction) {
+
+        if (list.size() < 2) return;
+        XWebView view;
+        int current = mCurrentView.getPosition();
+        if (index < 0){
+            if (current == 0) view = list.get(list.size() - 1);
+            else view = list.get(current - 1);
         }
-    }
-
-    private synchronized void showTabAnimated(XWebView view, Direction direction) {
-
+        else {
+            if (current == list.size() - 1) view = list.get(0);
+            else view = list.get(current + 1);
+        }
         if (view == null) return;
         if (mCurrentView != null) {
             mCurrentView.setForegroundTab(false);
@@ -1035,13 +983,13 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
         WebView webView = mCurrentView.getWebView();
         webView.setAlpha(0.0f);
         mWebViewFrame.addView(webView, MATCH_PARENT); // Remove browser frame background to reduce overdraw
-        if (direction == Direction.up){
-            webView.setTranslationY(-mWebViewFrame.getHeight());
+        if (direction == Direction.up) {
+            webView.setTranslationY(mWebViewFrame.getHeight());
             webView.setAlpha(1.0f);
             webView.animate().translationY(0).setDuration(200).setListener(mAnimEndListener).start();
         }
-        else if (direction == Direction.down) {
-            webView.setTranslationY(mWebViewFrame.getHeight());
+        else if (direction == Direction.down){
+            webView.setTranslationY(-mWebViewFrame.getHeight());
             webView.setAlpha(1.0f);
             webView.animate().translationY(0).setDuration(200).setListener(mAnimEndListener).start();
         }
@@ -1055,15 +1003,12 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
             webView.setAlpha(1.0f);
             webView.animate().translationX(0).setDuration(200).setListener(mAnimEndListener).start();
         }
-
-        if (mCurrentView.getWebView() != null) {
-            updateUrl(mCurrentView.getUrl(), false);
-            updateProgress(mCurrentView.getProgress());
-        }
-        else {
-            updateUrl("", false);
-            updateProgress(0);
-        }
+        updateUrl(mCurrentView.getUrl(), false);
+        updateProgress(mCurrentView.getProgress());
+//        else {
+//            updateUrl("", false);
+//            updateProgress(0);
+//        }
         if (mCurrentView.isIncognitoTab()) {
             incognitoToolbar();
         }
@@ -1071,10 +1016,9 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
 
         mCurrentView.requestFocus();
         mCurrentView.onResume();
-
     }
 
-    private synchronized void showTab(XWebView view, boolean closeDrawer) {
+    public synchronized void showTab(XWebView view, boolean closeDrawer) {
 
         if (view == null) return;
         if (mCurrentView != null) {
@@ -1083,7 +1027,6 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
         }
         mCurrentView = view;
         mCurrentView.setForegroundTab(true);
-        writeTabCount(0);
 
         mWebViewFrame.removeAllViews();
         mWebViewFrame.addView(mCurrentView.getWebView(), MATCH_PARENT);
@@ -1091,6 +1034,7 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
         if (mCurrentView.getWebView() != null) {
             updateUrl(mCurrentView.getUrl(), false);
             updateProgress(mCurrentView.getProgress());
+            //mMainLayout.setWebView(mCurrentView);
         }
         else {
             updateUrl("", false);
@@ -1103,10 +1047,9 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
 
         mCurrentView.requestFocus();
         mCurrentView.onResume();
-
-        if (closeDrawer){
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
+        writeTabCount(0);
+        if (closeDrawer && !mBottomLayout){
+            mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     mDrawerLayout.closeDrawers();
@@ -1120,10 +1063,8 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
 
         mCurrentView = list.get(position);
         mCurrentView.setAsForegroundTab(true, position);
-        mIncognitoAdapter.notifyItemChanged(position);
-        mIncognitoWebViews.remove(oldpos);
-        mIncognitoAdapter.notifyItemRemoved(oldpos);
-        updateTabIndexes(mIncognitoWebViews);
+        mIncognitoAdapter.itemChanged(position, 1);
+        mIncognitoAdapter.remove(oldpos);
 
         mWebViewFrame.removeAllViews();
         mWebViewFrame.addView(mCurrentView.getWebView(), MATCH_PARENT);
@@ -1149,10 +1090,8 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
 
         mCurrentView = list.get(position);
         mCurrentView.setAsForegroundTab(true, position);
-        mTabsAdapter.notifyItemChanged(position);
-        mWebViews.remove(oldpos);
-        mTabsAdapter.notifyItemRemoved(oldpos);
-        updateTabIndexes(mWebViews);
+        mTabsAdapter.itemChanged(position, 1);
+        mTabsAdapter.remove(oldpos);
 
         mWebViewFrame.removeAllViews();
         mWebViewFrame.addView(mCurrentView.getWebView(), MATCH_PARENT);
@@ -1196,7 +1135,7 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
                 Utils.showToast(this, getResources().getString(R.string.message_blocked_local));
                 url = null;
             }
-            newTab(url, true, false, true, false);
+            newTab(url, false, -1, false);
             mIsNewIntent = true;
         }
     }
@@ -1217,85 +1156,96 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
     }
 
     public synchronized void newTab(String url) {
-        if (mCurrentView.isIncognitoTab()) newTab(url, true, true, false, true);
-        else newTab(url, true, true, true, false);
+        newTab(url, false, mCurrentView.getPosition() + 1, mCurrentView.isIncognitoTab());
     }
 
-    protected synchronized boolean newTab(String url, boolean show, boolean parent, boolean normal, boolean incognito) {
-        if (normal) incognito = false;
+    protected synchronized boolean newTab(String url, boolean background, int index, boolean incognito) {
 
         mIsNewIntent = false;
-        XWebView startingTab = new XWebView(mActivity, url, mDarkTheme, incognito);
-        startingTab.setToolbar(mToolbarLayout);
+        XWebView startingTab = new XWebView(mActivity, url, incognito, background);
+
         if (mIdGenerator == 0) {
             startingTab.resumeTimers();
         }
         mIdGenerator++;
-        int index = 0;
         if (incognito){
-            if (mCurrentView.isIncognitoTab() && parent) {
-                mIncognitoWebViews.add(index = mIncognitoWebViews.indexOf(mCurrentView) + 1, startingTab);
-                updateTabIndexes(mIncognitoWebViews, index - 1);
+            if (mCurrentView.isIncognitoTab() && index > -1) {
+                mIncognitoWebViews.add(index, startingTab);
+                updateTabIndexes(mIncognitoWebViews, index);
             }
             else {
                 mIncognitoWebViews.add(startingTab);
                 index = mIncognitoWebViews.size() - 1;
                 updateTabIndexes(mIncognitoWebViews, index);
-                if (mIncognitoWebViews.size() > 7) mIncognitoManager.scrollToPosition(mIncognitoWebViews.size() - 1);
             }
-            mIncognitoAdapter.notifyItemInserted(index);
+            mIncognitoAdapter.itemInserted(index);
         }
         else {
-            if (parent) {
-                mWebViews.add(index = mWebViews.indexOf(mCurrentView) + 1, startingTab);
-                updateTabIndexes(mWebViews, index - 1);
+            if (index > -1) {
+                mWebViews.add(index, startingTab);
+                updateTabIndexes(mWebViews, index);
             }
             else {
                 mWebViews.add(startingTab);
                 index = mWebViews.size() - 1;
                 updateTabIndexes(mWebViews, index);
-                if (mWebViews.size() > 7) mTabManager.scrollToPosition(mWebViews.size() - 1);
             }
-            mTabsAdapter.notifyItemInserted(index);
+            mTabsAdapter.itemInserted(index);
         }
-        if (show) showTab(startingTab, true);
+        if (!background) showTab(startingTab, true);
         else writeTabCount(mHighlight);
+
         return true;
     }
 
-    private synchronized void deleteTab(int position) {
+    public synchronized void addBackgroundTab(XWebView webView) {
 
-        boolean isIncognito = IsIncognitoMode();
-        if (isIncognito && position >= mIncognitoWebViews.size()) return;
-        if (!isIncognito && position >= mWebViews.size()) return;
+        mIsNewIntent = false;
+        if (mIdGenerator == 0) {
+            webView.resumeTimers();
+        }
+        mIdGenerator++;
+        int index = mCurrentView.getPosition() + 1;
+        if (webView.isIncognitoTab()){
+
+            mIncognitoWebViews.add(index, webView);
+            updateTabIndexes(mIncognitoWebViews, index);
+            mIncognitoAdapter.itemInserted(index);
+        }
+        else {
+            mWebViews.add(index, webView);
+            updateTabIndexes(mWebViews, index);
+            mTabsAdapter.itemInserted(index);
+        }
+        writeTabCount(mHighlight);
+    }
+
+    public synchronized void deleteTab(int position, boolean incognito) {
+
+        if (incognito && position >= mIncognitoWebViews.size()) return;
+        if (!incognito && position >= mWebViews.size()) return;
 
         if (mCurrentView.isIncognitoTab()) {
-            if (isIncognito) deleteIncognitoTab(position);
+            if (incognito) deleteIncognitoTab(position);
             else deleteFragmentTab(position, false);
-            return;
         }
-        else if (isIncognito){
+        else if (incognito){
             deleteFragmentTab(position, true);
-            return;
         }
+        else deleteNormalTab(position);
+    }
 
+    private synchronized void deleteNormalTab(int position){
         int current = mWebViews.indexOf(mCurrentView);
 
         XWebView reference = mWebViews.get(position);
         if (reference == null) return;
 
-        if (reference.getUrl() != null && !reference.getUrl().startsWith(Constants.FILE) && !isIncognitoTab()) {
+        if (reference.getUrl() != null && !reference.getUrl().startsWith(Constants.FILE)) {
             mPreferences.setSavedUrl(reference.getUrl());
         }
-        boolean isShown = reference.isShown();
-        if (isShown) {
-            mWebViewFrame.setBackgroundColor(mBackgroundColor);
-        }
         if (position < current) { //if before current tab
-            mWebViews.remove(position);
-            mTabsAdapter.notifyItemRemoved(position);
-            updateTabIndexes(mWebViews, position);
-            reference.onDestroy();
+            mTabsAdapter.remove(position);
         }
         else if (position + 1 < mWebViews.size()) { //if after or current
             if (position == 0){
@@ -1304,23 +1254,13 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
             else if (current == position) {
                 displayRemoveTab(mWebViews, position - 1, position);
             }
-            else {
-                mWebViews.remove(position);
-                mTabsAdapter.notifyItemRemoved(position);
-                updateTabIndexes(mWebViews, position);
-            }
-            reference.onDestroy();
+            else mTabsAdapter.remove(position);
         }
         else if (mWebViews.size() > 1) {
             if (current == position) {
                 displayRemoveTab(mWebViews, position - 1, position);
             }
-            else {
-                mWebViews.remove(position);
-                mTabsAdapter.notifyItemRemoved(position);
-                updateTabIndexes(mWebViews);
-            }
-            reference.onDestroy();
+            else mTabsAdapter.remove(position);
         }
         else {
             if (mExitOnTabClose && (mCurrentView.getUrl() == null
@@ -1328,159 +1268,136 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
                     || mCurrentView.getUrl().equals(mHomepage))) {
                 mIncognitoWebViews.clear();
                 finish();
+                return;
             }
             else {
                 mWebViews.remove(position);
+                mTabsAdapter.itemRemoved(position);
                 if (mPreferences.getClearCacheExit() && mCurrentView != null && !isIncognitoTab()) {
                     mCurrentView.clearCache(true);
-                    Log.d(Constants.TAG, "Cache Cleared");
                 }
                 if (mPreferences.getClearHistoryExitEnabled() && !isIncognitoTab()) {
                     clearHistory();
-                    Log.d(Constants.TAG, "History Cleared");
-
                 }
                 if (mPreferences.getClearCookiesExitEnabled() && !isIncognitoTab()) {
                     clearCookies();
-                    Log.d(Constants.TAG, "Cookies Cleared");
+                }
+                if (!mExitOnTabClose) {
+                    newTab(null, false, -1, false);
+                    reference.onDestroy();
+                    reference = null;
+                    return;
                 }
                 reference.pauseTimers();
                 reference.onDestroy();
-                if (!mExitOnTabClose) {
-                    newTab(null, true, false, true, false);
-                    return;
-                }
+                reference = null;
                 mCurrentView = null;
                 finish();
                 return;
             }
         }
+
         writeTabCount(0);
 
-        if (mIsNewIntent && isShown) {
+        if (mIsNewIntent && reference.isShown()) {
             mIsNewIntent = false;
             closeActivity();
         }
-        Log.d(Constants.TAG, "deleted tab");
+        reference.onDestroy();
+        reference = null;
     }
 
     private synchronized void deleteIncognitoTab(int position){
 
         int current = mIncognitoWebViews.indexOf(mCurrentView);
         XWebView reference = mIncognitoWebViews.get(position);
-        if (reference == null) return;
-        boolean isShown = reference.isShown();
-        if (isShown) mWebViewFrame.setBackgroundColor(mBackgroundColor);
+
         if (current > position) {
-            mIncognitoWebViews.remove(position);
-            mIncognitoAdapter.notifyItemRemoved(position);
-            updateTabIndexes(mIncognitoWebViews, position);
-            reference.onDestroy();
+            mIncognitoAdapter.remove(position);
         }
         else if (position + 1 < mIncognitoWebViews.size()) { //if after current tab
             if (position == 0){
-                displayRemoveIncognitoTab(mIncognitoWebViews, 1, position);//showTab(mIncognitoWebViews.get(1), false);
+                displayRemoveIncognitoTab(mIncognitoWebViews, 1, position);
             }
             else if (current == position) {
-                displayRemoveIncognitoTab(mIncognitoWebViews, position - 1, position);//showTab(mIncognitoWebViews.get(position - 1), false);
+                displayRemoveIncognitoTab(mIncognitoWebViews, position - 1, position);
             }
-            else {
-                mIncognitoWebViews.remove(position);
-                mIncognitoAdapter.notifyItemRemoved(position);
-            }
-            reference.onDestroy();
+            else mIncognitoAdapter.remove(position);
         }
         else if (mIncognitoWebViews.size() > 1) {
             if (current == position) {
                 displayRemoveIncognitoTab(mIncognitoWebViews, position - 1, position);//showTab(mIncognitoWebViews.get(position - 1), false);
             }
-            else {
-                mIncognitoWebViews.remove(position);
-                mIncognitoAdapter.notifyItemRemoved(position);
-            }
-            reference.onDestroy();
+            else mIncognitoAdapter.remove(position);
         }
         else { //size = 1 last tab
             mIncognitoWebViews.remove(position);
-            mIncognitoAdapter.notifyItemRemoved(position);
+            mIncognitoAdapter.notifyDataSetChanged();
             if (mWebViews.size() > 0) showTab(mWebViews.get(mWebViews.size() - 1), true);
-            else newTab(null, true, false, true, false);
-            mViewPager.setCurrentItem(0);
-            reference.onDestroy();
+            else newTab(null, false, -1, false);
+            if (mBottomLayout) mBottomDrawerManager.showTabs();
+            else mViewPager.setCurrentItem(0, true);
         }
         writeTabCount(0);
-        if (mIsNewIntent && isShown) {
-            mIsNewIntent = false;
-            closeActivity();
-        }
-        Log.d(Constants.TAG, "deleted tab");
+        reference.onDestroy();
     }
 
     private synchronized void deleteFragmentTab(int position, boolean deleteIncognito){
         if (deleteIncognito){ //delete tabs in incognito fragment from normal tabs fragment
-            mIncognitoWebViews.remove(position);
-            mIncognitoAdapter.notifyItemRemoved(position);
-            updateTabIndexes(mIncognitoWebViews);
+            mIncognitoAdapter.remove(position);
         }
-        else {
-            mWebViews.remove(position);
-            mTabsAdapter.notifyItemRemoved(position);
-            updateTabIndexes(mWebViews);
-        }
+        else mTabsAdapter.remove(position);
     }
 
     @Override
     public boolean onKeyLongPress(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            showCloseDialog(CurrentIndex());
+            showCloseDialog(mCurrentView.getPosition(), mCurrentView.isIncognitoTab());
         }
         return true;
     }
 
     private void closeBrowser() {
-        mWebViewFrame.setBackgroundColor(mBackgroundColor);
         if (mPreferences.getClearCacheExit() && mCurrentView != null && !isIncognitoTab()) {
-            mCurrentView.clearCache(true);
-            Log.d(Constants.TAG, "Cache Cleared");
+            for (XWebView webView : mWebViews) {
+                webView.clearCache(true);
+            }
         }
         if (mPreferences.getClearHistoryExitEnabled() && !isIncognitoTab()) {
             clearHistory();
-            Log.d(Constants.TAG, "History Cleared");
         }
         if (mPreferences.getClearCookiesExitEnabled() && !isIncognitoTab()) {
             clearCookies();
-            Log.d(Constants.TAG, "Cookies Cleared");
         }
         mCurrentView = null;
         for (int n = 0; n < mWebViews.size(); n++) {
             if (mWebViews.get(n) != null) mWebViews.get(n).onDestroy();
         }
-        mWebViews.clear();
+        mWebViews = new ArrayList<>();
         finish();
     }
 
-    @SuppressWarnings("deprecation")
     public void clearHistory() {
-        //this.deleteDatabase(HistoryDatabase.DatabaseName);
-        mHistoryDatabase.dropTables();
+        mHistoryManager.deleteFaviconDir();
+        mDatabaseManager.dropTables();
         WebViewDatabase m = WebViewDatabase.getInstance(this);
         m.clearFormData();
         m.clearHttpAuthUsernamePassword();
-        if (API < 18) {
-            m.clearUsernamePassword();
-            WebIconDatabase.getInstance().removeAllIcons();
-        }
-        if (mSystemBrowser) {
-            try {
-                //Browser.clearHistory(getContentResolver());
-            }
-            catch (NullPointerException ignored) { }
-        }
+//        if (mSystemBrowser) {
+//            try {
+//                //Browser.clearHistory(getContentResolver());
+//            }
+//            catch (NullPointerException ignored) { }
+//        }
         Utils.trimCache(this);
+        openHistory();
     }
 
     private void clearCache(){
         for (XWebView view : mWebViews){
+            view.getWebView().clearCache(true);
+        }
+        for (XWebView view : mIncognitoWebViews){
             view.getWebView().clearCache(true);
         }
     }
@@ -1488,8 +1405,6 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
     @SuppressLint("NewApi")
     @SuppressWarnings("deprecation")
     public void clearCookies() {
-        //TODO Break out web storage deletion into its own option/action
-        //TODO clear web storage for all sites that are visited in Incognito mode
         WebStorage storage = WebStorage.getInstance();
         storage.deleteAllData();
         CookieManager c = CookieManager.getInstance();
@@ -1502,33 +1417,39 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        if (mDrawerLayout.isDrawerOpen(mRightDrawer)) {
-            mDrawerLayout.closeDrawer(mRightDrawer);
-        }
-        else if (mDrawerLayout.isDrawerOpen(mLeftDrawer)) {
-            mDrawerLayout.closeDrawer(mLeftDrawer);
-        }
-        else {
+    BackListener mDefaultBackListener = new BackListener() {
+        @Override public void onBackPressed() {
             if (mCurrentView != null) {
-                Log.d(Constants.TAG, "onBackPressed");
-                if (mSearch.hasFocus()) {
-                    mCurrentView.requestFocus();
-                }
-                else if (mCurrentView.canGoBack()) {
+                if (mCurrentView.canGoBack()) {
                     if (!mCurrentView.isShown()) {
                         onHideCustomView();
                     }
                     else mCurrentView.goBack();
                 }
-                else deleteTab(CurrentIndex());
+                else {
+                    if (mCurrentView.isIncognitoTab()) deleteIncognitoTab(mCurrentView.getPosition());
+                    else deleteNormalTab(mCurrentView.getPosition());
+                }
             }
             else {
                 Log.e(Constants.TAG, "This shouldn't happen ever");
-                super.onBackPressed();
+                //super.onBackPressed();
             }
         }
+    };
+
+    BackListener mBackListener = mDefaultBackListener;
+
+    public void setBackListener(BackListener listener){
+        mBackListener = listener;
+    }
+
+    public void clearBacklistener(){
+        mBackListener = mDefaultBackListener;
+    }
+
+    @Override public void onBackPressed() {
+        mBackListener.onBackPressed();
     }
 
     @Override
@@ -1543,12 +1464,12 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
 
     @Override
     protected void onStop(){
-        if (mBookmarkManager.mBookmarksChanged) {
-            new Thread(new Runnable() {
+        if (mBookmarkManager.getBookmarksChanged()) {
+            ThreadExecutor.execute(new Runnable() {
                 public void run() {
                     mBookmarkManager.saveBookmarks(null);
                 }
-            }).start();
+            });
         }
         super.onStop();
     }
@@ -1568,8 +1489,8 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
     @Override
     protected void onDestroy() {
         Log.d(Constants.TAG, "onDestroy");
-        if (mHistoryDatabase != null) {
-            mHistoryDatabase.close();
+        if (mDatabaseManager != null) {
+            mDatabaseManager.close();
         }
         super.onDestroy();
     }
@@ -1577,7 +1498,6 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(Constants.TAG, "onResume");
         if (mSearchAdapter != null) {
             mSearchAdapter.refreshPreferences();
             //mSearchAdapter.refreshBookmarks();
@@ -1586,15 +1506,16 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
             mCurrentView.resumeTimers();
             mCurrentView.onResume();
 
-            mHistoryDatabase = HistoryDatabase.getInstance(getApplicationContext());
+            mDatabaseManager = DatabaseManager.getInstance(getApplicationContext());
             if (mHistoryPage == null) mHistoryPage = mHistoryManager.getHistoryPage();
-            mHistoryDatabase.updateDate();
+            mDatabaseManager.updateDate();
         }
+        if (!mSettingsChanged) return;
         initializePreferences();
         if (mWebViews != null) {
             for (int n = 0; n < mWebViews.size(); n++) {
                 if (mWebViews.get(n) != null) {
-                    mWebViews.get(n).initializePreferences(this);
+                    mWebViews.get(n).initializePreferences();
                 }
                 else mWebViews.remove(n);
             }
@@ -1602,7 +1523,7 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
         if (mIncognitoWebViews != null) {
             for (int n = 0; n < mIncognitoWebViews.size(); n++) {
                 if (mIncognitoWebViews.get(n) != null) {
-                    mIncognitoWebViews.get(n).initializePreferences(this);
+                    mIncognitoWebViews.get(n).initializePreferences();
                 }
                 else mIncognitoWebViews.remove(n);
             }
@@ -1641,207 +1562,36 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
         else mCurrentView.loadUrl(query);
     }
 
-    public class LightningViewAdapter
-            extends RecyclerView.Adapter<LightningViewAdapter.LightningViewHolder>
-            implements ItemTouchHelperAdapter {
-
-        private final Context context;
-        private final int layoutResourceId;
-        private List<XWebView> data = null;
-        private final TabDrawerItemClickListener mClickListener;
-
-        public LightningViewAdapter(Context context, int layoutResourceId, List<XWebView> data) {
-            this.layoutResourceId = layoutResourceId;
-            this.context = context;
-            this.data = data;
-            this.mClickListener = new TabDrawerItemClickListener();
-        }
-
-        @Override
-        public LightningViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-            LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
-            View view = inflater.inflate(layoutResourceId, viewGroup, false);
-            return new LightningViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(final LightningViewHolder holder, int position) {
-            holder.layout.setOnClickListener(mClickListener);
-
-            final XWebView web = data.get(position);
-            holder.txtTitle.setText(web.getTitle());
-
-            final Bitmap favicon = web.getFavicon();
-            if (web.isForegroundTab()) {
-                holder.txtTitle.setTextAppearance(context, R.style.boldText);
-                holder.favicon.setImageBitmap(favicon);
-                holder.layout.setBackgroundColor(Color.LTGRAY);
-            }
-            else {
-                holder.layout.setBackgroundColor(0);
-                holder.txtTitle.setTextAppearance(context, R.style.normalText);
-            }
-
-            holder.txtTitle.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    return false;
-                }
-            });
-
-            holder.exit.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onItemDismiss(web.getPosition());
-                }
-            });
-        }
-
-        public class LightningViewHolder extends RecyclerView.ViewHolder implements ItemTouchHelperViewHolder {
-
-            public LightningViewHolder(View view) {
-                super(view);
-                txtTitle = (TextView) view.findViewById(R.id.textTab);
-                favicon = (ImageView) view.findViewById(R.id.faviconTab);
-                exit = (ImageView) view.findViewById(R.id.deleteButton);
-                layout = (RelativeLayout) view.findViewById(R.id.tabItem);
-                exit.setColorFilter(R.color.gray_extra_dark, PorterDuff.Mode.SRC_IN);
-            }
-
-            final TextView txtTitle;
-            final ImageView favicon;
-            final ImageView exit;
-            final RelativeLayout layout;
-
-            @Override
-            public void onItemSelected() {
-                itemView.setBackgroundColor(Color.LTGRAY);
-            }
-
-            @Override
-            public void onItemClear() {
-                itemView.setBackgroundColor(0);
-            }
-        }
-
-        @Override
-        public int getItemCount() {
-            return (data != null) ? data.size() : 0;
-        }
-
-        @Override
-        public void onItemDismiss(int position) {
-            deleteTab(position);
-        }
-
-        @Override
-        public boolean onItemMove(int fromPosition, int toPosition) {
-            Collections.swap(data, fromPosition, toPosition);
-            data.get(toPosition).setPositon(toPosition);
-            data.get(fromPosition).setPositon(fromPosition);
-            notifyItemMoved(fromPosition, toPosition);
-            return true;
-        }
-    }
-
     private void incognitoToolbar(){
-        if (mDarkTheme) return;
-        int dark = getResources().getColor(R.color.primary_color_dark);
-        mBackground.setColor(dark);
-        getWindow().setBackgroundDrawable(mBackground);
+        if (incognitotoolbar) return;
         mToolbarLayout.setBackgroundColor(Color.DKGRAY);
-        mSearchBox.setBackgroundColor(Color.GRAY);
+        mSearchBox.setBackground(mDark);
         mSearch.setTextColor(Color.WHITE);
         mOverflowIcon.setColorFilter(Color.WHITE);
+        incognitotoolbar = true;
+        normaltoolbar = false;
     }
+
+    private boolean normaltoolbar = false;
+    private boolean incognitotoolbar = false;
 
     private void normalToolbar(){
-        if (mDarkTheme) return;
-        int light = getResources().getColor(R.color.primary_color);
-        mBackground.setColor(light);
-        getWindow().setBackgroundDrawable(mBackground);
-        mToolbarLayout.setBackgroundColor(light);
-        mSearchBox.setBackgroundColor(Color.WHITE);
+        if (normaltoolbar) return;
+        if (mDarkTheme) {
+            mSearchBox.setBackground(mGrey);
+        }
+        else {
+            mToolbarLayout.setBackgroundColor(mBackgroundColor);
+            mSearchBox.setBackground(mWhite);
+        }
         mSearch.setTextColor(Color.BLACK);
         mOverflowIcon.clearColorFilter();
+        normaltoolbar = true;
+        incognitotoolbar = false;
     }
 
-    private void getImage(ImageView image, HistoryItem web) {
-        new DownloadImageTask(image, web).execute(web.getUrl());
-    }
-
-    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-
-        final ImageView bmImage;
-        final HistoryItem mWeb;
-
-        public DownloadImageTask(ImageView bmImage, HistoryItem web) {
-            this.bmImage = bmImage;
-            this.mWeb = web;
-        }
-
-        protected Bitmap doInBackground(String... urls) {
-            String url = urls[0];
-            Bitmap mIcon = null;
-            // unique path for each url that is bookmarked.
-            String hash = String.valueOf(Utils.getDomainName(url).hashCode());
-            File image = new File(mActivity.getCacheDir(), hash + ".png");
-            String urldisplay;
-            try { urldisplay = Utils.getProtocol(url) + getDomainName(url) + "/favicon.ico"; }
-            catch (URISyntaxException e) {
-                e.printStackTrace();
-                urldisplay = "https://www.google.com/s2/favicons?domain_url=" + url;
-            }
-            // checks to see if the image exists
-            if (!image.exists()) {
-                try {
-                    // if not, download it...
-                    URL urlDownload = new URL(urldisplay);
-                    HttpURLConnection connection = (HttpURLConnection) urlDownload.openConnection();
-                    connection.setDoInput(true);
-                    connection.connect();
-                    InputStream in = connection.getInputStream();
-
-                    if (in != null) mIcon = BitmapFactory.decodeStream(in);
-                    // ...and cache it
-                    if (mIcon != null) {
-                        FileOutputStream fos = new FileOutputStream(image);
-                        mIcon.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                        fos.flush();
-                        fos.close();
-                        Log.d(Constants.TAG, "Downloaded: " + urldisplay);
-                    }
-                }
-                catch (Exception e) { e.printStackTrace(); }
-            }
-            else mIcon = BitmapFactory.decodeFile(image.getPath());
-            if (mIcon == null) {
-                try { // if not, download it...
-                    URL urlDownload = new URL("https://www.google.com/s2/favicons?domain_url=" + url);
-                    HttpURLConnection connection = (HttpURLConnection) urlDownload.openConnection();
-                    connection.setDoInput(true);
-                    connection.connect();
-                    InputStream in = connection.getInputStream();
-
-                    if (in != null) mIcon = BitmapFactory.decodeStream(in); // ...and cache it
-                    if (mIcon != null) {
-                        FileOutputStream fos = new FileOutputStream(image);
-                        mIcon.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                        fos.flush();
-                        fos.close();
-                    }
-                }
-                catch (Exception e) { e.printStackTrace(); }
-            }
-            if (mIcon == null) return mWebpageBitmap;
-            else return mIcon;
-        }
-
-        protected void onPostExecute(Bitmap result) {
-            Bitmap fav = Utils.padFavicon(result);
-            bmImage.setImageBitmap(fav);
-            mWeb.setBitmap(fav);
-        }
+    public Bitmap getDefaultFavicon(){
+        return mWebpageBitmap;
     }
 
     static String getDomainName(String url) throws URISyntaxException {
@@ -1868,15 +1618,15 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
         }
         else if (shortUrl) {
             switch (mPreferences.getUrlBoxContentChoice()) {
-                case 0: // Default, show only the domain
+                case 0: // Default, openDrawer only the domain
                     //url = url.replaceFirst(Constants.HTTP, "");
                     //url = Utils.getDomainName(url);
                     mSearch.setText(url);
                     break;
-                case 1: // URL, show the entire URL
+                case 1: // URL, openDrawer the entire URL
                     mSearch.setText(url);
                     break;
-                case 2: // Title, show the page's title
+                case 2: // Title, openDrawer the page's title
                     if (mCurrentView != null && !mCurrentView.getTitle().isEmpty()) {
                         mSearch.setText(mCurrentView.getTitle());
                     }
@@ -1896,36 +1646,18 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
 
     @Override
     public void updateHistory(final String title, final String url) {
-
-    }
-
-    public void addItemToHistory(final String title, final String url) {
-        Runnable update = new Runnable() {
+        if (url == null || url.startsWith(Constants.FILE)) {
+            return;
+        }
+        if (mDatabaseManager == null) {
+            mDatabaseManager = DatabaseManager.getInstance(mActivity);
+        }
+        ThreadExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                if (isSystemBrowserAvailable() && mPreferences.getSyncHistoryEnabled()) {
-                    try {
-                        //Browser.updateVisitedHistory(getContentResolver(), url, true);
-                    }
-                    catch (NullPointerException ignored) { }
-                }
-                try {
-                    if (mHistoryDatabase == null) {
-                        mHistoryDatabase = HistoryDatabase.getInstance(mActivity);
-                    }
-                    mHistoryDatabase.visitHistoryItem(url.replace("https://", "").replace("http://", ""), title);
-                } catch (IllegalStateException e) {
-                    Log.e(Constants.TAG, "IllegalStateException in updateHistory");
-                } catch (NullPointerException e) {
-                    Log.e(Constants.TAG, "NullPointerException in updateHistory");
-                } catch (SQLiteException e) {
-                    Log.e(Constants.TAG, "SQLiteException in updateHistory");
-                }
+                mDatabaseManager.visitHistoryItem(title, url);
             }
-        };
-        if (url != null && !url.startsWith(Constants.FILE)) {
-            new Thread(update).start();
-        }
+        });
     }
 
     public boolean isSystemBrowserAvailable() {
@@ -1994,14 +1726,8 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
     }
 
     private void openHistory() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //mCurrentView.loadUrl(HistoryPage.getHistoryPage(mActivity));
-                mHistoryPage = mHistoryManager.getHistoryPage();
-                mCurrentView.loadUrl(mHistoryUrl);
-            }
-        }).run();
+        mHistoryPage = mHistoryManager.getHistoryPage();
+        mCurrentView.loadUrl(mHistoryUrl);
     }
 
     public void showHistoryPage(){
@@ -2053,13 +1779,9 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
     }
 
     @Override
-    public void updateTab(int position) {
-        mTabsAdapter.notifyItemChanged(position);
-    }
-
-    @Override
-    public void updateIncognitoTab(int position){
-        mIncognitoAdapter.notifyItemChanged(position);
+    public void updateTab(int position, boolean incognito, int type) {
+        if (incognito) mIncognitoAdapter.itemChanged(position, type);
+        else mTabsAdapter.itemChanged(position, type);
     }
 
     private int CurrentIndex(){
@@ -2300,23 +2022,21 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
     @Override
     public void onCreateWindow(boolean isUserGesture, Message resultMsg) {
         if (resultMsg == null) return;
-
-        if (mCurrentView.isIncognitoTab()) newTab("", false, true, false, true);
-        else newTab("", false, true, true, false);
         WebView.WebViewTransport transport = (WebView.WebViewTransport) resultMsg.obj;
-        int position;
-        XWebView target;
+
+        int position = 1;
+        if (mOpenLinkBackground) {
+            XWebView webView = new XWebView(this, "", mCurrentView.isIncognitoTab(), true).asBackground();
+            transport.setWebView(webView.getWebView());
+            resultMsg.sendToTarget();
+            return;
+        }
+        newTab("", false, position = mCurrentView.getPosition() + 1, mCurrentView.isIncognitoTab());
         if (mCurrentView.isIncognitoTab()){
-            position = mIncognitoWebViews.indexOf(mCurrentView) + 1;
-            target = mIncognitoWebViews.get(position);
+            transport.setWebView(mIncognitoWebViews.get(position).getWebView());
         }
-        else {
-            position = mWebViews.indexOf(mCurrentView) + 1;
-            target = mWebViews.get(position);
-        }
-        transport.setWebView(target.getWebView());
+        else transport.setWebView(mWebViews.get(position).getWebView());
         resultMsg.sendToTarget();
-        if (target.isPageAd()) deleteTab(position);
     }
 
     @Override
@@ -2327,6 +2047,19 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
     @Override
     public XWebView getCurrentView(){
         return mCurrentView;
+    }
+
+    @Override
+    public String[] getBookmark(){
+        return new String[]{mCurrentView.getTitle(), mCurrentView.getUrl(), mCurrentView.getFaviconName()};
+    }
+
+    public void setTabAdapter(ITabViewAdapter adapter){
+        mTabsAdapter = adapter;
+    }
+
+    public void setIncognitoAdapter(ITabViewAdapter adapter){
+        mIncognitoAdapter = adapter;
     }
 
     @Override
@@ -2350,185 +2083,296 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
     @Override
     public void longClickPage(final String url) {
         HitTestResult result = null;
-        CharSequence[] options;
-        final CharSequence[] link = { "Open link", "Copy link address", "Open in incognito tab", "Open in new tab" };
-        final CharSequence[] incognito = { "Open link", "Copy link address", "Open in new tab", "Open in incognito tab" };
-        final CharSequence[] image = { "Open image", "Download image", "Open in new tab" };
-        final boolean isIncognito = mCurrentView.isIncognitoTab();
-        options = isIncognito ? incognito : link;
         if (mCurrentView.getWebView() != null) {
             result = mCurrentView.getWebView().getHitTestResult();
         }
         if (url != null) {
-            if (result != null) {
-                if (result.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE || result.getType() == HitTestResult.IMAGE_TYPE) {
-                    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int image) {
-                            switch (image) {
-                                case 0: { mCurrentView.loadUrl(url); break; }
-                                case 1:
-                                    if (API > 8) {
-                                        Utils.downloadFile(mActivity, url, mCurrentView.getUserAgent(), "attachment", false);
-                                    }
-                                    break;
-                                case 2: {
-                                    if (isIncognito) newTab(url, false, true, false, true);
-                                    else newTab(url, false, true, true, false);
-                                    break;
-                                }
-                            }
-                        }
-                    };
-                    AlertDialog.Builder builder = new AlertDialog.Builder(mActivity); // dialog
-                    builder.setTitle(url.replace(Constants.HTTP, "")).setItems(image, dialogClickListener).show();
-                }
-                else {
-                    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int incognito) {
-                            switch (incognito) {
-                                case 0: { mCurrentView.loadUrl(url); break;}
-                                case 1:
-                                    ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                                    ClipData clip = ClipData.newPlainText("label", url);
-                                    clipboard.setPrimaryClip(clip);
-                                    break;
-                                case 2: {
-                                    if (isIncognito) newTab(url, false, true, true, false);
-                                    else newTab(url, false, true, false, true);
-                                    break;
-                                }
-                                case 3: {
-                                    if (isIncognito) newTab(url, false, true, false, true);
-                                    else newTab(url, false, true, true, false);
-                                    break;
-                                }
-                            }
-                        }
-                    };
-
-                    AlertDialog.Builder builder = new AlertDialog.Builder(mActivity); // dialog
-                    builder.setTitle(url).setItems(options, dialogClickListener).show();
-                }
+            if (result != null && result.getExtra() != null && (result.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE || result.getType() == HitTestResult.IMAGE_TYPE)) {
+                showLongClickImageDialog(url, result.getExtra());
             }
-            else {
-                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int incognito) {
-                        switch (incognito) {
-                            case 0: { mCurrentView.loadUrl(url); break;}
-                            case 1:
-                                ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                                ClipData clip = ClipData.newPlainText("label", url);
-                                clipboard.setPrimaryClip(clip);
-                                break;
-                            case 2: {
-                                if (isIncognito) newTab(url, false, true, true, false);
-                                else newTab(url, false, true, false, true);
-                                break;
-                            }
-                            case 3: {
-                                if (isIncognito) newTab(url, false, true, false, true);
-                                else newTab(url, false, true, true, false);
-                                break;
-                            }
-                        }
-                    }
-                };
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(mActivity); // dialog
-                builder.setTitle(url).setItems(options, dialogClickListener).show();
-            }
+            else showLongClickLinkDialog(url);
         }
         else if (result != null) {
             if (result.getExtra() != null) {
                 final String newUrl = result.getExtra();
                 if (result.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE || result.getType() == HitTestResult.IMAGE_TYPE) {
-                    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int image) {
-                            switch (image) {
-                                case 0: { mCurrentView.loadUrl(newUrl); break; }
-                                case 1:
-                                    if (API > 8) {
-                                        Utils.downloadFile(mActivity, newUrl, mCurrentView.getUserAgent(), "attachment", false);
-                                    }
-                                    break;
-                                case 2: {
-                                    if (isIncognito) newTab(newUrl, false, true, false, true);
-                                    else newTab(newUrl, false, true, true, false);
-                                    break;
-                                }
-                            }
-                        }
-                    };
-
-                    AlertDialog.Builder builder = new AlertDialog.Builder(mActivity); // dialog
-                    builder.setTitle(newUrl.replace(Constants.HTTP, "")).setItems(image, dialogClickListener).show();
+                    showLongClickImageDialog(newUrl, newUrl);
                 }
-                else {
-                    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int incognito) {
-                            switch (incognito) {
-                                case 0: { mCurrentView.loadUrl(url); break;}
-                                case 1:
-                                    ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                                    ClipData clip = ClipData.newPlainText("label", url);
-                                    clipboard.setPrimaryClip(clip);
-                                    break;
-                                case 2: {
-                                    if (isIncognito) newTab(url, false, true, true, false);
-                                    else newTab(url, false, true, false, true);
-                                    break;
-                                }
-                                case 3: {
-                                    if (isIncognito) newTab(url, false, true, false, true);
-                                    else newTab(url, false, true, true, false);
-                                    break;
-                                }
-                            }
-                        }
-                    };
-
-                    AlertDialog.Builder builder = new AlertDialog.Builder(mActivity); // dialog
-                    builder.setTitle(url).setItems(options, dialogClickListener).show();
-                }
+                else showLongClickLinkDialog(newUrl);
             }
         }
     }
 
-    public void clearBrowsingData(){
-        final CharSequence[] items = {" History "," Cache "," Cookies "};
-        final ArrayList<Integer> seletedItems = new ArrayList<>();
+    private void showLongClickLinkDialog(final String url){
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
+        final boolean isIncognito = mCurrentView.isIncognitoTab();
+
+        blockLink.setVisibility(View.GONE);
+        linkUrl.setText(url);
+
+        if (isIncognito){
+            newTab1.setText("Open link in new tab");
+            newTab2.setText("Open link in new incognito tab");
+        }
+
+        openLink.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCurrentView.loadUrl(url);
+                mLinkDialog.dismiss();
+            }
+        });
+
+        copyLink.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("label", url);
+                clipboard.setPrimaryClip(clip);
+                mLinkDialog.dismiss();
+            }
+        });
+
+        newTab1.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                newTab(url, mOpenLinkBackground, -1, isIncognito);
+                mLinkDialog.dismiss();
+            }
+        });
+
+        newTab2.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                newTab(url, mOpenLinkBackground, mCurrentView.getPosition() + 1, isIncognito);
+                mLinkDialog.dismiss();
+            }
+        });
+
+        newTab1.setOnLongClickListener(new OnLongClickListener() {
+
+            @Override
+            public boolean onLongClick(View v) {
+                newTab(url, !mOpenLinkBackground, -1, isIncognito);
+                mLinkDialog.dismiss();
+                return true;
+            }
+        });
+
+        newTab2.setOnLongClickListener(new OnLongClickListener() {
+
+            @Override
+            public boolean onLongClick(View v) {
+                newTab(url, !mOpenLinkBackground, mCurrentView.getPosition() + 1, isIncognito);
+                mLinkDialog.dismiss();
+                return true;
+            }
+        });
+
+        mLinkDialog.show();
+    }
+
+    private void showLongClickImageDialog(final String url, final String image){
+        final boolean isIncognito = mCurrentView.isIncognitoTab();
+
+        imageUrl.setText(url);
+        blockImage.setVisibility(View.GONE);
+
+        blockImage.setOnClickListener(new OnClickListener() {
+            @Override public void onClick(View v) {
+                mDatabaseManager.addAdblockUrl(url);
+                Utils.showToast(mActivity, "Url added to adblock list");
+                mImageDialog.dismiss();
+            }
+        });
+
+        openImage.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCurrentView.loadUrl(image);
+                mImageDialog.dismiss();
+            }
+        });
+
+        downloadImage.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Utils.downloadFile(mActivity, image, mCurrentView.getUserAgent(), "attachment", false);
+                mImageDialog.dismiss();
+            }
+        });
+
+        copyImageLink.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                String copy = (url == null) ? image : url;
+                ClipData clip = ClipData.newPlainText("label", copy);
+                clipboard.setPrimaryClip(clip);
+                mImageDialog.dismiss();
+            }
+        });
+
+        newTabImage.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                newTab(image, mOpenLinkBackground, mCurrentView.getPosition() + 1, isIncognito);
+                mImageDialog.dismiss();
+            }
+        });
+
+        newTabImage.setOnLongClickListener(new OnLongClickListener() {
+
+            @Override
+            public boolean onLongClick(View v) {
+                newTab(image, !mOpenLinkBackground, mCurrentView.getPosition() + 1, isIncognito);
+                mImageDialog.dismiss();
+                return true;
+            }
+        });
+
+        newTabImage2.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                newTab(url, mOpenLinkBackground, mCurrentView.getPosition() + 1, isIncognito);
+                mImageDialog.dismiss();
+            }
+        });
+        newTabImage2.setOnLongClickListener(new OnLongClickListener() {
+
+            @Override
+            public boolean onLongClick(View v) {
+                newTab(url, !mOpenLinkBackground, mCurrentView.getPosition() + 1, isIncognito);
+                mImageDialog.dismiss();
+                return true;
+            }
+        });
+
+        if (url == null) newTabImage2.setVisibility(View.GONE);
+
+        mImageDialog.show();
+    }
+
+    private AlertDialog mImageDialog;
+    private AlertDialog mLinkDialog;
+    private LinearLayout mImageDialogLayout;
+    private LinearLayout mLinkDialogLayout;
+
+    private TextView imageUrl;
+    private TextView blockImage;
+    private TextView openImage;
+    private TextView downloadImage;
+    private TextView copyImageLink;
+    private TextView newTabImage;
+    private TextView newTabImage2;
+
+    private TextView linkUrl;
+    private TextView blockLink;
+    private TextView openLink;
+    private TextView copyLink;
+    private TextView newTab1;
+    private TextView newTab2;
+
+    private void initLongClickDialogs(){
+        mImageDialogLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.image_dialog, null);
+        imageUrl = (TextView) mImageDialogLayout.findViewById(R.id.url);
+        blockImage = (TextView) mImageDialogLayout.findViewById(R.id.blockUrl);
+        openImage = (TextView) mImageDialogLayout.findViewById(R.id.openLink);
+        downloadImage = (TextView) mImageDialogLayout.findViewById(R.id.download);
+        copyImageLink = (TextView) mImageDialogLayout.findViewById(R.id.copyLink);
+        newTabImage = (TextView) mImageDialogLayout.findViewById(R.id.newTab1);
+        newTabImage2 = (TextView) mImageDialogLayout.findViewById(R.id.newTab2);
+
+        mLinkDialogLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.link_dialog, null);
+        linkUrl = (TextView) mLinkDialogLayout.findViewById(R.id.url);
+        blockLink = (TextView) mLinkDialogLayout.findViewById(R.id.blockUrl);
+        openLink = (TextView) mLinkDialogLayout.findViewById(R.id.openLink);
+        copyLink = (TextView) mLinkDialogLayout.findViewById(R.id.copyLink);
+        newTab1 = (TextView) mLinkDialogLayout.findViewById(R.id.newTab1);
+        newTab2 = (TextView) mLinkDialogLayout.findViewById(R.id.newTab2);
+
+        imageUrl.setOnLongClickListener(new OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                blockImage.setVisibility(View.VISIBLE);
+                return false;
+            }
+        });
+
+        linkUrl.setOnLongClickListener(new OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                blockLink.setVisibility(View.VISIBLE);
+                return false;
+            }
+        });
+
+        mImageDialog = new AlertDialog.Builder(mActivity).create();
+        mImageDialog.setView(mImageDialogLayout);
+
+        mLinkDialog = new AlertDialog.Builder(mActivity).create();
+        mLinkDialog.setView(mLinkDialogLayout);
+    }
+
+    public void clearBrowsingData(){
+        if (mClearHistoryDialog != null){
+            mClearHistoryDialog.show();
+            return;
+        }
+        final int[] array = new int[] {1, 1, 1};
+        LinearLayout layout = (LinearLayout) getLayoutInflater().inflate(R.layout.clearhistory_dialog, null);
+        layout.findViewById(R.id.cbHistory).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CheckedTextView cb = (CheckedTextView) view;
+                cb.setChecked(!cb.isChecked());
+                if (cb.isChecked()) {
+                    array[0] = 1;
+                }
+                else array[0] = 0;
+            }
+        });
+        layout.findViewById(R.id.cbCache).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CheckedTextView cb = (CheckedTextView) view;
+                cb.setChecked(!cb.isChecked());
+                if (cb.isChecked()) {
+                    array[1] = 1;
+                }
+                array[1] = 0;
+            }
+        });
+        layout.findViewById(R.id.cbCookies).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CheckedTextView cb = (CheckedTextView) view;
+                cb.setChecked(!cb.isChecked());
+                if (cb.isChecked()) {
+                    array[2] = 1;
+                }
+                array[2] = 0;
+            }
+        });
+        mClearHistoryDialog = new AlertDialog.Builder(this)
                 .setTitle("Clear browsing data")
-                .setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int indexSelected, boolean isChecked) {
-                        if (isChecked) {
-                            seletedItems.add(indexSelected);// If the user checked the item, add it to the selected items
-                        } else if (seletedItems.contains(indexSelected)) {
-                            seletedItems.remove(Integer.valueOf(indexSelected));// Else, if the item is already in the array, remove it
-                        }
-                    }
-                }).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setView(layout)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        if (seletedItems.contains(0)) clearHistory();
-                        if (seletedItems.contains(1)) clearCache();
-                        if (seletedItems.contains(2)) clearCookies();
+                        if (array[0] == 1) clearHistory();
+                        if (array[1] == 1) clearCache();
+                        if (array[2] == 1) clearCookies();
                     }
-                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        //  Your code when user clicked on Cancel
                     }
-                }).create();
-        dialog.setCanceledOnTouchOutside(true);
-        dialog.show();
+                })
+                .create();
+        mClearHistoryDialog.setCanceledOnTouchOutside(true);
+        mClearHistoryDialog.show();
     }
 
     public void setIsLoading() {
@@ -2582,35 +2426,15 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.action_back:
-                if (mCurrentView != null) {
-                    if (mCurrentView.canGoBack()) {
-                        mCurrentView.goBack();
-                    }
-                    else deleteTab(CurrentIndex());
+                if (!mCurrentView.goBack()) {
+                    deleteTab(mCurrentView.getPosition(), mCurrentView.isIncognitoTab());
                 }
                 break;
             case R.id.action_forward:
-                if (mCurrentView != null) {
-                    if (mCurrentView.canGoForward()) {
-                        mCurrentView.goForward();
-                    }
-                }
-                break;
-            case R.id.tabs_button:
-                if (mDrawerLayout.isDrawerOpen(mLeftDrawer)) {
-                    mDrawerLayout.closeDrawer(mLeftDrawer);
-                    mDrawerLayout.openDrawer(mRightDrawer);
-                }
-                else {
-                    if (mDrawerLayout.isDrawerOpen(mRightDrawer)) {
-                        mDrawerLayout.closeDrawer(mRightDrawer);
-                    }
-                    else mDrawerLayout.openDrawer(mRightDrawer);
-                }
+                mCurrentView.goForward();
                 break;
             case R.id.new_tab_button:
-                if (IsIncognitoMode()) newTab(null, true, false, false, true);
-                else newTab(null, true, false, true, false);
+                newTab(null, false, -1, IsIncognitoMode());
                 break;
             case R.id.button_next:
                 String text;
@@ -2618,18 +2442,17 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
                     mCurrentView.find(mFindText = text);
                 }
                 else mCurrentView.findNext();
-                //mCurrentView.getWebView().findNext(false);
                 break;
             case R.id.button_back:
                 if (!(text = mFindEditText.getText().toString()).equals(mFindText)){
                     mCurrentView.find(mFindText = text);
                 }
                 else mCurrentView.findPrevious();
-                //mCurrentView.getWebView().findNext(true);
                 break;
             case R.id.button_quit:
                 mCurrentView.getWebView().clearMatches();
-                mMainLayout.removeView(mSearchBar);
+                mMainLayout.removeView(mFindBar);
+
                 break;
         }
     }
@@ -2654,5 +2477,86 @@ public class BrowserActivity extends ThemableActivity implements BrowserControll
         super.onActionModeFinished(mode);
     }
 
-    private enum Direction { up, down, left, right }
+    public class OnSwipeListener extends GestureDetector.SimpleOnGestureListener{
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            mTabButtonSwiped = true;
+            float x1 = e1.getX();
+            float y1 = e1.getY();
+
+            float x2 = e2.getX();
+            float y2 = e2.getY();
+
+            double rad = Math.atan2(y1-y2,x2-x1) + Math.PI;
+            double angle =  (rad*180/Math.PI + 180)%360;
+            get(angle);
+
+            return false;
+        }
+
+        private void get(double angle){
+            if(inRange(angle, 45, 135)) {// Direction.up;
+                if (!isIncognitoTab()) showTabAnimated(mWebViews, -1, Direction.up);
+                else showTabAnimated(mIncognitoWebViews, -1, Direction.up);
+            }
+            else if(inRange(angle, 0,45) || inRange(angle, 315, 360)) {//Direction.right;
+                if (!isIncognitoTab()) showTabAnimated(mWebViews, 1, Direction.right);
+                showTabAnimated(mIncognitoWebViews, 1, Direction.right);
+            }
+            else if(inRange(angle, 225, 315)) {//Direction.down;
+                if (!isIncognitoTab()) showTabAnimated(mWebViews, 1, Direction.down);
+                showTabAnimated(mIncognitoWebViews, 1, Direction.down);
+            }
+            else {//Direction.left;
+                if (!isIncognitoTab()) showTabAnimated(mWebViews, -1, Direction.left);
+                else showTabAnimated(mIncognitoWebViews, -1, Direction.left);
+            }
+        }
+        private boolean inRange(double angle, float init, float end){
+            return (angle >= init) && (angle < end);
+        }
+    }
+
+    private class TabButtonListener implements OnTouchListener{
+        @Override
+        public boolean onTouch(View view, MotionEvent event) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                view.setPressed(true);
+            }
+            else if (event.getAction() == MotionEvent.ACTION_UP) {
+                view.setPressed(false);
+                if (mBottomLayout) {
+                    mBottomDrawerManager.openDrawer();
+                }
+                else openTabDrawer();
+            }
+            return true;
+        }
+    }
+
+    private class TabButtonSwipeListener implements OnTouchListener{
+        @Override
+        public boolean onTouch(View view, MotionEvent event) {
+            mSwipeListener.onTouchEvent(event);
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                view.setPressed(true);
+                mTabButtonSwiped = false;
+            }
+            else if (event.getAction() == MotionEvent.ACTION_UP) {
+                view.setPressed(false);
+                if (!mTabButtonSwiped) {
+                    if (mBottomLayout) {
+                        mBottomDrawerManager.openDrawer();
+                    }
+                    else openTabDrawer();
+                }
+            }
+            return true;
+        }
+    }
+
+   
+
+    private Handler mHandler = SpeedHandler.getHandler();
 }

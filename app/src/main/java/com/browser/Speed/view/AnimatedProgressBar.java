@@ -6,10 +6,13 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
@@ -72,9 +75,21 @@ public class AnimatedProgressBar extends LinearLayout {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.animated_progress_bar, this, true);
 
-
         this.setBackgroundColor(backgroundColor);           // set the background color for this view
+        mPaint.setColor(mProgressColor);
+        mPaint.setStrokeWidth(10);
 
+        this.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                    AnimatedProgressBar.this.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                }
+                else AnimatedProgressBar.this.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                mRect.bottom = AnimatedProgressBar.this.getBottom() - AnimatedProgressBar.this.getTop();
+                mWidth = AnimatedProgressBar.this.getMeasuredWidth();
+            }
+        });
     }
 
     /**
@@ -91,11 +106,11 @@ public class AnimatedProgressBar extends LinearLayout {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        mPaint.setColor(mProgressColor);
-        mPaint.setStrokeWidth(10);
         mRect.right = mRect.left + mDrawWidth;
         canvas.drawRect(mRect, mPaint);
     }
+
+    private int mWidth;
 
     /**
      * sets the progress as an integer value between 0 and 100.
@@ -107,41 +122,31 @@ public class AnimatedProgressBar extends LinearLayout {
      */
     public void setProgress(int progress) {
 
-        if (progress > 100) {       // progress cannot be greater than 100
-            progress = 100;
-        } else if (progress < 0) {  // progress cannot be less than 0
-            progress = 0;
-        }
+        if (progress > 100) progress = 100;
+        else if (progress < 0) progress = 0;
 
         if (this.getAlpha() < 1.0f) {
             fadeIn();
         }
-
-        int mWidth = this.getMeasuredWidth();
         // Set the drawing bounds for the ProgressBar
         mRect.left = 0;
         mRect.top = 0;
-        mRect.bottom = this.getBottom() - this.getTop();
         if (progress < mProgress && !mBidirectionalAnimate) {   // if the we only animate the view in one direction
             // then reset the view width if it is less than the
             // previous progress
             mDrawWidth = 0;
-        } else if (progress == mProgress) {     // we don't need to go any farther if the progress is unchanged
-        	if (progress == 100) {
-        		fadeOut();
-        	}
+        }
+        else if (progress == mProgress) {     // we don't need to go any farther if the progress is unchanged
+        	if (progress == 100) fadeOut();
             return;
         }
-
         mProgress = progress;       // save the progress
-
         final int deltaWidth = (mWidth * mProgress / 100) - mDrawWidth;     // calculate amount the width has to change
-
         animateView(mDrawWidth, mWidth, deltaWidth);    // animate the width change
     }
 
     /**
-     * private method used to create and run the animation used to change the progress
+     * private method used to create and setBitmap the animation used to change the progress
      *
      * @param initialWidth is the width at which the progress starts at
      * @param maxWidth     is the maximum width (total width of the view)
@@ -171,28 +176,24 @@ public class AnimatedProgressBar extends LinearLayout {
         };
 
         fill.setDuration(500);
-        fill.setInterpolator(new DecelerateInterpolator());
+        fill.setInterpolator(mDecInterpolator);
         this.startAnimation(fill);
     }
+
+    private DecelerateInterpolator mDecInterpolator = new DecelerateInterpolator();
 
     /**
      * fades in the progress bar
      */
     private void fadeIn() {
-        ObjectAnimator fadeIn = ObjectAnimator.ofFloat(this, "alpha", 1.0f);
-        fadeIn.setDuration(200);
-        fadeIn.setInterpolator(new DecelerateInterpolator());
-        fadeIn.start();
+        this.animate().alpha(1f).setDuration(200).setInterpolator(mDecInterpolator).start();
     }
 
     /**
      * fades out the progress bar
      */
     private void fadeOut() {
-        ObjectAnimator fadeOut = ObjectAnimator.ofFloat(this, "alpha", 0.0f);
-        fadeOut.setDuration(200);
-        fadeOut.setInterpolator(new DecelerateInterpolator());
-        fadeOut.start();
+        this.animate().alpha(0f).setDuration(200).setInterpolator(mDecInterpolator).start();
     }
 
     @Override
@@ -202,10 +203,7 @@ public class AnimatedProgressBar extends LinearLayout {
             Bundle bundle = (Bundle) state;
             this.mProgress = bundle.getInt("progressState");
             state = bundle.getParcelable("instanceState");
-
-
         }
-
         super.onRestoreInstanceState(state);
     }
 

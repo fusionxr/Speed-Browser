@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:background="?attr/settingsBackground">
 
     <include layout="@layout/toolbar_settings" />
 
@@ -21,7 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
+                android:minHeight="56dp"
                 android:paddingBottom="10dp"
                 android:paddingTop="10dp" >
 
@@ -38,6 +39,7 @@
                         android:layout_height="wrap_content"
                         android:paddingLeft="16dp"
                         android:text="@string/agent"
+                        android:textColor="?attr/settingsTextColor"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <TextView
@@ -51,19 +53,19 @@
                 </LinearLayout>
             </RelativeLayout>
 
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="0.4dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
+                android:background="@color/gray_medium"/>
 
             <RelativeLayout
                 android:id="@+id/layoutDownload"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
+                android:minHeight="56dp"
                 android:paddingBottom="10dp"
                 android:paddingTop="10dp" >
 
@@ -80,6 +82,7 @@
                         android:layout_height="wrap_content"
                         android:paddingLeft="16dp"
                         android:text="@string/download"
+                        android:textColor="?attr/settingsTextColor"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <TextView
@@ -93,19 +96,19 @@
                 </LinearLayout>
             </RelativeLayout>
 
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="0.4dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
+                android:background="@color/gray_medium"/>
 
             <RelativeLayout
                 android:id="@+id/layoutHomepage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
+                android:minHeight="56dp"
                 android:paddingBottom="10dp"
                 android:paddingTop="10dp" >
 
@@ -122,6 +125,7 @@
                         android:layout_height="wrap_content"
                         android:paddingLeft="16dp"
                         android:text="@string/home"
+                        android:textColor="?attr/settingsTextColor"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <TextView
@@ -135,19 +139,19 @@
                 </LinearLayout>
             </RelativeLayout>
 
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="0.4dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
+                android:background="@color/gray_medium"/>
 
             <RelativeLayout
                 android:id="@+id/layoutSearch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
+                android:minHeight="56dp"
                 android:paddingBottom="10dp"
                 android:paddingTop="10dp" >
 
@@ -163,6 +167,7 @@
                         android:layout_height="wrap_content"
                         android:paddingLeft="16dp"
                         android:text="@string/search"
+                        android:textColor="?attr/settingsTextColor"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <TextView
@@ -176,19 +181,19 @@
                 </LinearLayout>
             </RelativeLayout>
 
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="0.4dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
+                android:background="@color/gray_medium"/>
 
             <RelativeLayout
                 android:id="@+id/rGoogleSuggestions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
+                android:minHeight="56dp"
                 android:paddingBottom="10dp"
                 android:paddingRight="10dp"
                 android:paddingTop="10dp" >
@@ -206,6 +211,7 @@
                         android:paddingLeft="16dp"
                         android:paddingRight="30dp"
                         android:text="@string/google_suggestions"
+                        android:textColor="?attr/settingsTextColor"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <TextView
@@ -226,12 +232,12 @@
                     android:layout_centerVertical="true" />
             </RelativeLayout>
 
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="0.4dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
+                android:background="@color/gray_medium"/>
         </LinearLayout>
     </ScrollView>
 

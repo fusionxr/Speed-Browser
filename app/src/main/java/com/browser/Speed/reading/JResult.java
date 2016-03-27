@@ -120,10 +120,7 @@ public class JResult implements Serializable {
 	}
 
 	public String getText() {
-		if (text == null)
-			return "";
-
-		return text;
+		return (text == null) ? "" : text;
 	}
 
 	public JResult setText(String text) {

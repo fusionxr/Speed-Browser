@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:background="?attr/settingsBackground">
 
     <include layout="@layout/toolbar_settings" />
 
@@ -35,6 +36,7 @@
                     android:paddingLeft="16dp"
                     android:paddingRight="30dp"
                     android:text="@string/location"
+                    android:textColor="?attr/settingsTextColor"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <CheckBox
@@ -45,7 +47,100 @@
                     android:layout_centerVertical="true" />
             </RelativeLayout>
 
-            <LinearLayout
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="?attr/dividerColor" />
+
+            <RelativeLayout
+                android:id="@+id/rAllowCookies"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/listChoiceBackgroundIndicator"
+                android:minHeight="60dp"
+                android:paddingBottom="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp" >
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:orientation="vertical" >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="30dp"
+                        android:text="@string/enable_cookies"
+                        android:textColor="?attr/settingsTextColor"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="30dp"
+                        android:text="@string/recommended"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:textColor="@color/light" />
+                </LinearLayout>
+
+                <CheckBox
+                    android:id="@+id/cbAllowCookies"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="?attr/dividerColor" />
+
+            <RelativeLayout
+                android:id="@+id/rAllowIncognitoCookies"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/listChoiceBackgroundIndicator"
+                android:minHeight="60dp"
+                android:paddingBottom="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp" >
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:orientation="vertical" >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="30dp"
+                        android:text="@string/incognito_cookies"
+                        android:textColor="?attr/settingsTextColor"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+                </LinearLayout>
+
+                <CheckBox
+                    android:id="@+id/cbAllowIncognitoCookies"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true" />
+            </RelativeLayout>
+
+            <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginLeft="10dp"
@@ -70,6 +165,7 @@
                     android:paddingLeft="16dp"
                     android:paddingRight="30dp"
                     android:text="@string/third_party"
+                    android:textColor="?attr/settingsTextColor"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <CheckBox
@@ -111,7 +207,8 @@
                         android:paddingLeft="16dp"
                         android:paddingRight="30dp"
                         android:text="@string/password"
-                        android:textAppearance="?android:attr/textAppearanceMedium" />
+                        android:textColor="?attr/settingsTextColor"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <TextView
                         android:id="@+id/textView3"
@@ -132,113 +229,7 @@
                     android:layout_centerVertical="true" />
             </RelativeLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
-
-            <RelativeLayout
-                android:id="@+id/rClearCacheExit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
-                android:paddingBottom="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="10dp" >
-
-                <TextView
-                    android:id="@+id/textView4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_centerVertical="true"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="30dp"
-                    android:text="@string/cache"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <CheckBox
-                    android:id="@+id/cbClearCacheExit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true" />
-            </RelativeLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
-
-            <RelativeLayout
-                android:id="@+id/rClearHistoryExit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
-                android:paddingBottom="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="10dp" >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_centerVertical="true"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="30dp"
-                    android:text="@string/clear_history_exit"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <CheckBox
-                    android:id="@+id/cbClearHistoryExit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true" />
-            </RelativeLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
-
-            <RelativeLayout
-                android:id="@+id/rClearCookiesExit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
-                android:paddingBottom="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="10dp" >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_centerVertical="true"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="30dp"
-                    android:text="@string/clear_cookies_exit"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <CheckBox
-                    android:id="@+id/cbClearCookiesExit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true" />
-            </RelativeLayout>
-
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginLeft="10dp"
@@ -268,6 +259,7 @@
                         android:paddingLeft="16dp"
                         android:paddingRight="30dp"
                         android:text="@string/sync_history"
+                        android:textColor="?attr/settingsTextColor"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <TextView
@@ -288,7 +280,116 @@
                     android:layout_centerVertical="true" />
             </RelativeLayout>
 
-            <LinearLayout
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="?attr/dividerColor" />
+
+            <RelativeLayout
+                android:id="@+id/rClearCacheExit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/listChoiceBackgroundIndicator"
+                android:minHeight="60dp"
+                android:paddingBottom="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp" >
+
+                <TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="30dp"
+                    android:text="@string/clear_cache_exit"
+                    android:textColor="?attr/settingsTextColor"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <CheckBox
+                    android:id="@+id/cbClearCacheExit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="?attr/dividerColor" />
+
+            <RelativeLayout
+                android:id="@+id/rClearHistoryExit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/listChoiceBackgroundIndicator"
+                android:minHeight="60dp"
+                android:paddingBottom="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="30dp"
+                    android:text="@string/clear_history_exit"
+                    android:textColor="?attr/settingsTextColor"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <CheckBox
+                    android:id="@+id/cbClearHistoryExit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="?attr/dividerColor" />
+
+            <RelativeLayout
+                android:id="@+id/rClearCookiesExit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/listChoiceBackgroundIndicator"
+                android:minHeight="60dp"
+                android:paddingBottom="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="30dp"
+                    android:text="@string/clear_cookies_exit"
+                    android:textColor="?attr/settingsTextColor"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <CheckBox
+                    android:id="@+id/cbClearCookiesExit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true" />
+            </RelativeLayout>
+
+            <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginLeft="10dp"
@@ -311,6 +412,7 @@
                     android:layout_centerVertical="true"
                     android:paddingLeft="16dp"
                     android:text="@string/clear_cache"
+                    android:textColor="?attr/settingsTextColor"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
             </RelativeLayout>
 
@@ -336,7 +438,8 @@
                     android:layout_alignParentLeft="true"
                     android:layout_centerVertical="true"
                     android:paddingLeft="16dp"
-                    android:text="@string/history"
+                    android:text="@string/clear_history"
+                    android:textColor="?attr/settingsTextColor"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
             </RelativeLayout>
 
@@ -363,6 +466,7 @@
                     android:layout_centerVertical="true"
                     android:paddingLeft="16dp"
                     android:text="@string/clear_cookies"
+                    android:textColor="?attr/settingsTextColor"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
             </RelativeLayout>
 

@@ -18,7 +18,7 @@
     <string name="password">儲存密碼</string>
     <!-- <string name="keep_last_tab">不關閉最後一個標籤</string> -->
     <string name="agent">User Agent</string>
-    <string name="history">清除記錄</string>
+    <string name="clear_history">清除記錄</string>
     <string name="email">Email 給我</string>
     <string name="flash">啟用 Adobe Flash</string>
     <string name="mobile">以行動裝置方式瀏覽</string>
@@ -39,11 +39,11 @@
     <string name="title_activity_new_settings">新設定</string>
     <string name="action_settings">設定</string>
     <string name="version">應用程式版本</string>
-    <string name="cache">離開時清除快取</string>
+    <string name="clear_cache_exit">離開時清除快取</string>
     <string name="reflow">啟動文字自動重新排列</string>
     <string name="block">封鎖圖片</string>
     <string name="window">允許網站開啟新分頁</string>
-    <string name="cookies">啟用 Cookies</string>
+    <string name="enable_cookies">啟用 Cookies</string>
     <string name="importbookmarks">從其它瀏覽器匯入書籤</string>
     <string name="size">文字尺寸</string>
     <string name="recommended">(建議)</string>

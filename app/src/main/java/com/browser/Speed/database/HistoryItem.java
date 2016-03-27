@@ -3,14 +3,15 @@ package com.browser.Speed.database;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 
+import com.browser.Speed.utils.Utils;
+
 public class HistoryItem implements Comparable<HistoryItem> {
 
-	// private variables
 	private int mId = 0;
 	private String mUrl = "";
 	private String mTitle = "";
 	private String mFolder = "";
-    private String mDate;
+    private String mFavicon = "";
 	private Bitmap mBitmap = null;
 	private int mImageId = 0;
 	private int mOrder = 0;
@@ -22,12 +23,6 @@ public class HistoryItem implements Comparable<HistoryItem> {
 
 	public HistoryItem(int id, String url, String title) {
 		this.mId = id;
-		this.mUrl = url;
-		this.mTitle = title;
-		this.mBitmap = null;
-	}
-
-	public HistoryItem(String url, String title) {
 		this.mUrl = url;
 		this.mTitle = title;
 		this.mBitmap = null;
@@ -49,10 +44,8 @@ public class HistoryItem implements Comparable<HistoryItem> {
 	public int getImageId() { return this.mImageId; }
 	public void setID(int id) { this.mId = id; }
 	public void setImageId(int id) { this.mImageId = id; }
-
-	public void setBitmap(Bitmap image) {
-		mBitmap = image;
-	}
+    public void setFavicon(String id) { this.mFavicon = id;}
+	public void setBitmap(Bitmap image) { mBitmap = image; }
 
 	public void setFolder(String folder) {
 		mFolder = (folder == null) ? "" : folder;
@@ -66,9 +59,9 @@ public class HistoryItem implements Comparable<HistoryItem> {
 		return mOrder;
 	}
 
-	public String getFolder() {
-		return mFolder;
-	}
+	public String getFolder() { return mFolder; }
+
+    public String getFavicon() { return mFavicon; }
 
 	public Bitmap getBitmap() {
 		return mBitmap;

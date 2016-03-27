@@ -34,7 +34,7 @@
     <string name="location">Standortzugriff erlauben</string>
     <string name="password">Passwörter speichern</string>
     <string name="agent">User-Agent</string>
-    <string name="history">Verlauf leeren</string>
+    <string name="clear_history">Verlauf leeren</string>
     <string name="email">Kontakt</string>
     <string name="flash">Adobe Flash aktivieren</string>
     <string name="mobile">Mobile Ansicht</string>
@@ -55,11 +55,11 @@
     <string name="title_activity_new_settings">Neue Einstellungen</string>
     <string name="action_settings">Einstellungen</string>
     <string name="version">Programmversion</string>
-    <string name="cache">Cache beim Beenden leeren</string>
+    <string name="clear_cache_exit">Cache beim Beenden leeren</string>
     <string name="reflow">Textfluß anpassen</string>
     <string name="block">Bilder blockieren</string>
     <string name="window">Seiten erlauben ein neues Fenster zu öffnen</string>
-    <string name="cookies">Cookies erlauben</string>
+    <string name="enable_cookies">Cookies erlauben</string>
     <string name="importbookmarks">Lesezeichen vom Standardbrowser importieren</string>
     <string name="size">Textgröße</string>
     <string name="recommended">(Empfohlen)</string>
@@ -131,7 +131,6 @@
     <string name="action_manual">Manuell</string>
     <string name="action_auto">Auto</string>
     <string name="action_follow_me">Kontakt</string>
-    <string name="url_twitter">twitter.com/ACRDevelopment</string>
     <string name="clear_cache">Cache löschen</string>
     <string name="message_cache_cleared">Cache gelöscht</string>
     <string name="message_import">Lesezeichen wurden importiert</string>
@@ -168,7 +167,7 @@
     <string name="folder_default">Standard</string>
     <string name="folder_custom">Andere</string>
     <string name="untitled">Ohne Titel</string>
-    <string name="apache_license">Mozilla Public License v. 2.0</string>
+    <string name="mozilla_license">Mozilla Public License v. 2.0</string>
     <string name="freeware">Freeware</string>
     <string name="android_open_source_project">Android Open Source Project</string>
     <string name="hphosts_ad_server_list">hpHosts Ad Server Liste</string>
@@ -182,7 +181,7 @@
     <string name="title_file_chooser">Dateiauswahl</string>
     <string name="library_netcipher">NetCipher</string>
     <string name="license_gnu">GNU Lesser General Public License</string>
-    <string name="export_bookmarks">Exportiere Backup</string>
+    <string name="bookmarks_export">Exportiere Backup</string>
     <string name="import_backup">Importiere Backup</string>
     <string name="bookmark_export_path">Lesezeichen exportiert nach</string>
     <string name="bookmark_settings">Lesezeichen</string>

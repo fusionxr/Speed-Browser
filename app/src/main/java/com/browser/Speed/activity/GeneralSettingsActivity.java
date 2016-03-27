@@ -244,8 +244,7 @@ public class GeneralSettingsActivity extends ThemableSettingsActivity {
 					public void onClick(DialogInterface dialog, int which) {
 						String text = getSearchUrl.getText().toString();
 						mPreferences.setSearchUrl(text);
-						mSearchText.setText(getResources().getString(R.string.custom_url) + ": "
-								+ text);
+						mSearchText.setText(getResources().getString(R.string.custom_url) + ": " + text);
 					}
 				});
 		urlPicker.show();
@@ -267,16 +266,18 @@ public class GeneralSettingsActivity extends ThemableSettingsActivity {
 								mPreferences.setUserAgentChoice(which + 1);
 								switch (which + 1) {
 									case 1:
-										mAgentTextView.setText(getResources().getString(
-												R.string.agent_default));
+										mAgentTextView.setText(getResources().getString(R.string.agent_default));
+										mPreferences.setUserAgentString(null);
 										break;
 									case 2:
 										mAgentTextView.setText(getResources().getString(
 												R.string.agent_desktop));
+										mPreferences.setUserAgentString(Constants.DESKTOP_USER_AGENT);
 										break;
 									case 3:
 										mAgentTextView.setText(getResources().getString(
 												R.string.agent_mobile));
+										mPreferences.setUserAgentString(Constants.MOBILE_USER_AGENT);
 										break;
 									case 4:
 										mAgentTextView.setText(getResources().getString(
@@ -342,9 +343,7 @@ public class GeneralSettingsActivity extends ThemableSettingsActivity {
 				int n;
 				if (mDownloadLocation.contains(Environment.DIRECTORY_DOWNLOADS)) {
 					n = 1;
-				} else {
-					n = 2;
-				}
+				} else n = 2;
 
 				picker.setSingleChoiceItems(R.array.download_folder, n - 1,
 						new DialogInterface.OnClickListener() {

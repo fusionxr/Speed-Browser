@@ -13,11 +13,21 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Xfermode;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.webkit.URLUtil;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.*;
@@ -35,8 +45,7 @@ import com.browser.Speed.download.DownloadHandler;
 
 public final class Utils {
 
-	private Utils() {
-	}
+	private Utils() {}
 
 	public static void downloadFile(final Activity activity, final String url,
 			final String userAgent, final String contentDisposition, final boolean privateBrowsing) {
@@ -63,25 +72,47 @@ public final class Utils {
 		builder.setMessage(message)
 				.setCancelable(true)
 				.setPositiveButton(context.getResources().getString(R.string.action_ok),
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int id) {
-							}
-						});
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                            }
+                        });
 		AlertDialog alert = builder.create();
 		alert.show();
 	}
 
+    public static void initToastLayout(LayoutInflater inflater){
+        mToast = (TextView) inflater.inflate(R.layout.toast_layout, null);
+    }
+
+    private static TextView mToast;
+
 	public static void showToast(Context context, String message) {
-		Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+        mToast.setText(message);
+        Toast toast = new Toast(context);
+        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setView(mToast);
+        toast.show();
+		//Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
 	}
 
-	/**
-	 * Returns the number of pixels corresponding to the passed density pixels
-	 */
+    public static void showToast(Context context, int resource){
+        mToast.setText(context.getResources().getText(resource));
+        Toast toast = new Toast(context);
+        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setView(mToast);
+        toast.show();
+    }
+
+	private static DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
+	private static float density = metrics.density;
+
 	public static int convertDpToPixels(int dp) {
-		DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
-		return (int) (dp * metrics.density + 0.5f);
+		return (int) (dp * density + 0.5f);
+	}
+
+	public static float convertDpToPixels(float dp){
+		return (dp * density + 0.5f);
 	}
 
 	public static String getDomainName(String url) {
@@ -103,10 +134,8 @@ public final class Utils {
 		if (domain == null || domain.isEmpty()) {
 			return url;
 		}
-		if (ssl)
-			return Constants.HTTPS + domain;
-		else
-			return domain.startsWith("www.") ? domain.substring(4) : domain;
+		if (ssl) return Constants.HTTPS + domain;
+		else return domain.startsWith("www.") ? domain.substring(4) : domain;
 	}
 
 	public static String getProtocol(String url) {
@@ -160,7 +189,6 @@ public final class Utils {
 				}
 			}
 		}
-		// The directory is now empty so delete it
 		return dir != null && dir.delete();
 	}
 

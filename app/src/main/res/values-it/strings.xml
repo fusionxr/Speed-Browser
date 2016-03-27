@@ -7,7 +7,7 @@
     <string name="location">Accedere alla tua posizione</string>
     <string name="password">Salva password</string>
     <string name="agent">User Agent</string>
-    <string name="history">Cancella cronologia</string>
+    <string name="clear_history">Cancella cronologia</string>
     <string name="email">Email me</string>
     <string name="flash">Abilita Adobe Flash</string>
     <string name="mobile">Visualizza come mobile</string>
@@ -28,10 +28,10 @@
     <string name="action_refresh">Ricarica</string>
     <string name="download">Percorso Download</string>
     <string name="version">Versione Applicazione</string>
-    <string name="cache">Pulisci cache alla chiusura</string>
+    <string name="clear_cache_exit">Pulisci cache alla chiusura</string>
     <string name="reflow">Abilità reflow del testo</string>
     <string name="window">Consenti ai siti di aprire nuove finestr</string>
-    <string name="cookies">Abilita Cookies</string>
+    <string name="enable_cookies">Abilita Cookies</string>
     <string name="importbookmarks">Importa Segnalibri</string>
     <string name="size">Dimensione testo</string>
     <string name="recommended">Consigliato</string>
@@ -83,7 +83,7 @@
     <string name="action_manual">Manuale</string>
     <string name="action_auto">Auto</string>
     <string name="action_follow_me">Contattami</string>
-    <string name="url_twitter">twitter.com/ACRDevelopment</string>
+    <string name="url_twitter">chemxrs@gmail.com</string>
     <string name="clear_cache">Pulisci la Cache</string>
     <string name="message_cache_cleared">Cache Cancellata</string>
     <string name="message_import">Segnalibri importati!</string>
@@ -95,7 +95,7 @@
     <string name="block_ads">Blocca Annunci</string>
     <string name="enable_orbot">Abilita Orbot</string>
     <string name="sync_history">Sincronizza cronologia con Google</string>
-    <string name="export_bookmarks">Esporta segnalibri</string>
+    <string name="bookmarks_export">Esporta segnalibri</string>
     <string name="import_backup">Importa segnalibri da backup</string>
     <string name="bookmark_export_path">Segnalibri esportati</string>
     <string name="bookmark_settings">Impostazioni Segnalibri</string>

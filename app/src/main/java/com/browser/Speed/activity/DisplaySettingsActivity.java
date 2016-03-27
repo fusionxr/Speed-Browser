@@ -177,6 +177,7 @@ public class DisplaySettingsActivity extends ThemableSettingsActivity {
 					break;
 				case R.id.cbDarkTheme:
 					mPreferences.setUseDarkTheme(isChecked);
+					mPreferences.setRestartActivity(true);
 					restart();
 					break;
 			}
@@ -195,7 +196,23 @@ public class DisplaySettingsActivity extends ThemableSettingsActivity {
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						mPreferences.setTextSize(which + 1);
+						switch (which + 1) {
+							case 1:
+                                mPreferences.setTextSize(200);
+								break;
+							case 2:
+                                mPreferences.setTextSize(150);
+								break;
+							case 3:
+                                mPreferences.setTextSize(100);
+								break;
+							case 4:
+                                mPreferences.setTextSize(75);
+								break;
+							case 5:
+                                mPreferences.setTextSize(50);
+								break;
+						}
 					}
 				});
 		picker.setNeutralButton(getResources().getString(R.string.action_ok),

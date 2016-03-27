@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:drawable="@android:drawable/dialog_holo_light_frame"/>
+    <item
+        android:bottom="-0.5dp"
+        android:left="-0.5dp"
+        android:right="-0.5dp"
+        android:top="-0.5dp">
+        <shape android:shape="rectangle" >
+            <stroke
+                android:width="0.5dp"
+                android:color="#9e9e9e" />
+
+            <solid android:color="#00FFFFFF" />
+        </shape>
+    </item>
+
+
+</layer-list>

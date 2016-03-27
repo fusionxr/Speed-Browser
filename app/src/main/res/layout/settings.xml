@@ -9,19 +9,38 @@
     <ScrollView
         android:id="@+id/scrollView1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:background="?attr/settingsBackground">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/basic"
+                android:textSize="18dp"
+                android:textAppearance="@style/boldText"
+                android:textColor="?attr/settingsTextColor"
+                android:paddingLeft="16dp"
+                android:paddingTop="14dp"
+                android:paddingBottom="14dp"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/accent_color"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"/>
+
             <RelativeLayout
                 android:id="@+id/layoutFlash"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
+                android:minHeight="56dp"
                 android:paddingBottom="10dp"
                 android:paddingRight="10dp"
                 android:paddingTop="10dp" >
@@ -35,6 +54,7 @@
                     android:paddingLeft="16dp"
                     android:paddingRight="60dp"
                     android:text="@string/flash"
+                    android:textColor="?attr/settingsTextColor"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <CheckBox
@@ -45,19 +65,19 @@
                     android:layout_centerVertical="true" />
             </RelativeLayout>
 
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="0.4dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
+                android:background="@color/gray_medium"/>
 
             <RelativeLayout
                 android:id="@+id/layoutAdBlock"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
+                android:minHeight="56dp"
                 android:paddingBottom="10dp"
                 android:paddingRight="10dp"
                 android:paddingTop="10dp" >
@@ -70,6 +90,7 @@
                     android:paddingLeft="16dp"
                     android:paddingRight="60dp"
                     android:text="@string/block_ads"
+                    android:textColor="?attr/settingsTextColor"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <CheckBox
@@ -80,19 +101,19 @@
                     android:layout_centerVertical="true" />
             </RelativeLayout>
 
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="0.4dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
+                android:background="@color/gray_medium"/>
 
             <RelativeLayout
                 android:id="@+id/layoutImages"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
+                android:minHeight="56dp"
                 android:paddingBottom="10dp"
                 android:paddingRight="10dp"
                 android:paddingTop="10dp" >
@@ -106,6 +127,7 @@
                     android:paddingLeft="16dp"
                     android:paddingRight="60dp"
                     android:text="@string/block"
+                    android:textColor="?attr/settingsTextColor"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <CheckBox
@@ -116,19 +138,19 @@
                     android:layout_centerVertical="true" />
             </RelativeLayout>
 
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="0.4dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
+                android:background="@color/gray_medium"/>
 
             <RelativeLayout
                 android:id="@+id/layoutEnableJS"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
+                android:minHeight="56dp"
                 android:paddingBottom="10dp"
                 android:paddingRight="10dp"
                 android:paddingTop="10dp" >
@@ -142,6 +164,7 @@
                     android:paddingLeft="16dp"
                     android:paddingRight="60dp"
                     android:text="@string/java"
+                    android:textColor="?attr/settingsTextColor"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <CheckBox
@@ -152,19 +175,19 @@
                     android:layout_centerVertical="true" />
             </RelativeLayout>
 
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="0.4dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
+                android:background="@color/gray_medium"/>
 
             <RelativeLayout
                 android:id="@+id/layoutUseOrbot"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
+                android:minHeight="56dp"
                 android:paddingBottom="10dp"
                 android:paddingRight="10dp"
                 android:paddingTop="10dp" >
@@ -177,6 +200,7 @@
                     android:paddingLeft="16dp"
                     android:paddingRight="60dp"
                     android:text="@string/enable_orbot"
+                    android:textColor="?attr/settingsTextColor"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <CheckBox
@@ -186,20 +210,20 @@
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true" />
             </RelativeLayout>
-            
-            <LinearLayout
+
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="0.4dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
-            
+                android:background="@color/gray_medium"/>
+
             <RelativeLayout
-                android:id="@+id/layoutColorMode"
+                android:id="@+id/layoutSwipeTabs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
+                android:minHeight="56dp"
                 android:paddingBottom="10dp"
                 android:paddingRight="10dp"
                 android:paddingTop="10dp" >
@@ -211,30 +235,115 @@
                     android:layout_centerVertical="true"
                     android:paddingLeft="16dp"
                     android:paddingRight="60dp"
-                    android:text="@string/color_mode"
+                    android:text="@string/swipe_tabs"
+                    android:textColor="?attr/settingsTextColor"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <CheckBox
-                    android:id="@+id/cbColorMode"
+                    android:id="@+id/cbSwipeTabs"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true" />
             </RelativeLayout>
 
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="0.4dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
+                android:background="@color/gray_medium"/>
+
+            <RelativeLayout
+                android:id="@+id/layoutBottomDrawer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/listChoiceBackgroundIndicator"
+                android:minHeight="56dp"
+                android:paddingBottom="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="60dp"
+                    android:text="@string/showBottomDrawer"
+                    android:textColor="?attr/settingsTextColor"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <CheckBox
+                    android:id="@+id/cbBottomDrawer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.4dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/gray_medium" />
+
+            <RelativeLayout
+                android:id="@+id/layoutBottomToolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/listChoiceBackgroundIndicator"
+                android:minHeight="56dp"
+                android:paddingBottom="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="60dp"
+                    android:text="@string/showBottomToolbar"
+                    android:textColor="?attr/settingsTextColor"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <CheckBox
+                    android:id="@+id/cbBottomToolbar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true" />
+            </RelativeLayout>
+            
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/advanced"
+                android:textSize="18dp"
+                android:textColor="?attr/settingsTextColor"
+                android:textAppearance="@style/boldText"
+                android:paddingLeft="16dp"
+                android:paddingTop="14dp"
+                android:paddingBottom="14dp"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/accent_color"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"/>
 
             <RelativeLayout
                 android:id="@+id/layoutGeneral"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
+                android:minHeight="56dp"
                 android:paddingBottom="10dp"
                 android:paddingTop="10dp" >
 
@@ -246,22 +355,23 @@
                     android:layout_centerVertical="true"
                     android:paddingLeft="16dp"
                     android:text="@string/settings_general"
+                    android:textColor="?attr/settingsTextColor"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
             </RelativeLayout>
 
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="0.4dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
+                android:background="@color/gray_medium"/>
 
             <RelativeLayout
                 android:id="@+id/layoutBookmarks"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
+                android:minHeight="56dp"
                 android:paddingBottom="10dp"
                 android:paddingTop="10dp" >
 
@@ -272,22 +382,23 @@
                     android:layout_centerVertical="true"
                     android:paddingLeft="16dp"
                     android:text="@string/bookmark_settings"
+                    android:textColor="?attr/settingsTextColor"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
             </RelativeLayout>
 
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="0.4dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
+                android:background="@color/gray_medium"/>
 
             <RelativeLayout
                 android:id="@+id/layoutDisplay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
+                android:minHeight="56dp"
                 android:paddingBottom="10dp"
                 android:paddingTop="10dp" >
 
@@ -299,22 +410,23 @@
                     android:layout_centerVertical="true"
                     android:paddingLeft="16dp"
                     android:text="@string/settings_display"
+                    android:textColor="?attr/settingsTextColor"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
             </RelativeLayout>
 
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="0.4dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
+                android:background="@color/gray_medium"/>
 
             <RelativeLayout
                 android:id="@+id/layoutPrivacy"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
+                android:minHeight="56dp"
                 android:paddingBottom="10dp"
                 android:paddingTop="10dp" >
 
@@ -326,22 +438,23 @@
                     android:layout_centerVertical="true"
                     android:paddingLeft="16dp"
                     android:text="@string/settings_privacy"
+                    android:textColor="?attr/settingsTextColor"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
             </RelativeLayout>
 
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="0.4dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
+                android:background="@color/gray_medium"/>
 
             <RelativeLayout
                 android:id="@+id/layoutAdvanced"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
+                android:minHeight="56dp"
                 android:paddingBottom="10dp"
                 android:paddingTop="10dp" >
 
@@ -353,22 +466,23 @@
                     android:layout_centerVertical="true"
                     android:paddingLeft="16dp"
                     android:text="@string/settings_advanced"
+                    android:textColor="?attr/settingsTextColor"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
             </RelativeLayout>
 
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="0.4dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
+                android:background="@color/gray_medium"/>
 
             <RelativeLayout
                 android:id="@+id/layoutAbout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/listChoiceBackgroundIndicator"
-                android:minHeight="60dp"
+                android:minHeight="56dp"
                 android:paddingBottom="10dp"
                 android:paddingTop="10dp" >
 
@@ -385,6 +499,7 @@
                         android:layout_height="wrap_content"
                         android:paddingLeft="16dp"
                         android:text="@string/settings_about"
+                        android:textColor="?attr/settingsTextColor"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <TextView
@@ -398,12 +513,13 @@
                 </LinearLayout>
             </RelativeLayout>
 
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="0.4dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="?attr/dividerColor" />
+                android:background="@color/gray_medium"/>
+
         </LinearLayout>
     </ScrollView>
 

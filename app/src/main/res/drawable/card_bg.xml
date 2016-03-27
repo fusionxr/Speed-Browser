@@ -2,13 +2,12 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item>
-        <shape
-            android:dither="true"
-            android:shape="rectangle" >
-            <corners android:radius="2dp" />
-            <stroke android:width="1px" android:color="#9E9E9E" />
+        <shape android:shape="rectangle" >
+            <stroke
+                android:width="0.4dp"
+                android:color="@color/gray_medium" />
 
-            <solid android:color="@android:color/white" />
+            <solid android:color="#FFFFFF" />
         </shape>
     </item>
 

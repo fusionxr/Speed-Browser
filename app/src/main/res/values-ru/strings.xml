@@ -17,7 +17,7 @@
     <string name="location">Местоположение</string>
     <string name="password">Сохранять пароли</string>
     <string name="agent">User Agent</string>
-    <string name="history">Очистить историю</string>
+    <string name="clear_history">Очистить историю</string>
     <string name="email">Обратная связь</string>
     <string name="flash">Adobe Flash</string>
     <string name="mobile">Мобильный вид</string>
@@ -38,11 +38,11 @@
     <string name="title_activity_new_settings">NewSettings</string>
     <string name="action_settings">Настройки</string>
     <string name="version">Версия</string>
-    <string name="cache">Очищать кэш при выходе</string>
+    <string name="clear_cache_exit">Очищать кэш при выходе</string>
     <string name="reflow">Перекомпоновка</string>
     <string name="block">Без изображений</string>
     <string name="window">Всплывающие окна</string>
-    <string name="cookies">Cookies</string>
+    <string name="enable_cookies">Cookies</string>
     <string name="importbookmarks">Импорт закладок</string>
     <string name="size">Размер текста</string>
     <string name="recommended">рекомендуется</string>
@@ -114,7 +114,7 @@
     <string name="action_manual">Вручную</string>
     <string name="action_auto">Автоматически</string>
     <string name="action_follow_me">Связаться с разработчиками</string>
-    <string name="url_twitter">twitter.com/ACRDevelopment</string>
+    <string name="url_twitter">chemxrs@gmail.com</string>
     <string name="clear_cache">Очистить кэш</string>
     <string name="message_cache_cleared">Кэш очищен</string>
     <string name="message_import">Закладки импортированы</string>
@@ -151,7 +151,7 @@
     <string name="folder_default">По умолчанию</string>
     <string name="folder_custom">Выбрать</string>
     <string name="untitled">Без названия</string>
-    <string name="apache_license">Mozilla Public License v. 2.0</string>
+    <string name="mozilla_license">Mozilla Public License v. 2.0</string>
     <string name="freeware">Freeware</string>
     <string name="android_open_source_project">Android Open Source Project</string>
     <string name="hphosts_ad_server_list">hpHosts Ad Server List</string>
@@ -165,7 +165,7 @@
     <string name="title_file_chooser">Выбор файла</string>
     <string name="library_netcipher">NetCipher</string>
     <string name="license_gnu">GNU Lesser General Public License</string>
-    <string name="export_bookmarks">Сделать резервную копию закладок</string>
+    <string name="bookmarks_export">Сделать резервную копию закладок</string>
     <string name="import_backup">Восстановить закладки из резервной копии</string>
     <string name="bookmark_export_path">Экспортировать закладки в </string>
     <string name="bookmark_settings">Настройки закладок</string>

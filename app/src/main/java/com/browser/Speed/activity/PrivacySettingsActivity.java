@@ -22,7 +22,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.browser.Speed.database.HistoryDatabase;
+import com.browser.Speed.database.DatabaseManager;
 import com.browser.Speed.preference.PreferenceManager;
 import com.browser.Speed.R;
 import com.browser.Speed.utils.Utils;
@@ -32,11 +32,14 @@ public class PrivacySettingsActivity extends ThemableSettingsActivity {
 	// mPreferences variables
 	private static final int API = android.os.Build.VERSION.SDK_INT;
 	private PreferenceManager mPreferences;
-	private CheckBox cbLocation, cbSavePasswords, cbClearCacheExit, cbClearHistoryExit,
-			cbClearCookiesExit, cbThirdParty;
+	private CheckBox cbLocation, cbAllowCookies, cbAllowIncognitoCookies, cbSavePasswords, cbSyncHistory,
+			         cbClearCacheExit, cbClearHistoryExit, cbClearCookiesExit, cbThirdParty;
+	private RelativeLayout rLocation, rAllowCookies, rAllowIncognitoCookies, rThirdParty, rSavePasswords, rClearCacheExit, rClearHistoryExit, rClearCookiesExit;
+	private RelativeLayout rClearCache, rClearHistory, rClearCookies;
 	private Context mContext;
 	private boolean mSystemBrowser;
 	private Handler messageHandler;
+    private CheckListener mCheckListener = new CheckListener();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,8 +67,6 @@ public class PrivacySettingsActivity extends ThemableSettingsActivity {
 
 	private void initialize() {
 
-		RelativeLayout rLocation, rSavePasswords, rClearCacheExit, rClearHistoryExit, rClearCookiesExit, rClearCache, rClearHistory, rClearCookies, rThirdParty;
-
 		rLocation = (RelativeLayout) findViewById(R.id.rLocation);
 		rSavePasswords = (RelativeLayout) findViewById(R.id.rSavePasswords);
 		rClearCacheExit = (RelativeLayout) findViewById(R.id.rClearCacheExit);
@@ -74,6 +75,8 @@ public class PrivacySettingsActivity extends ThemableSettingsActivity {
 		rClearCache = (RelativeLayout) findViewById(R.id.rClearCache);
 		rClearHistory = (RelativeLayout) findViewById(R.id.rClearHistory);
 		rClearCookies = (RelativeLayout) findViewById(R.id.rClearCookies);
+		rAllowCookies = (RelativeLayout) findViewById(R.id.rAllowCookies);
+		rAllowIncognitoCookies = (RelativeLayout) findViewById(R.id.rAllowIncognitoCookies);
 		rThirdParty = (RelativeLayout) findViewById(R.id.rThirdParty);
 
 		cbLocation = (CheckBox) findViewById(R.id.cbLocation);
@@ -81,7 +84,10 @@ public class PrivacySettingsActivity extends ThemableSettingsActivity {
 		cbClearCacheExit = (CheckBox) findViewById(R.id.cbClearCacheExit);
 		cbClearHistoryExit = (CheckBox) findViewById(R.id.cbClearHistoryExit);
 		cbClearCookiesExit = (CheckBox) findViewById(R.id.cbClearCookiesExit);
+		cbAllowCookies = (CheckBox) findViewById(R.id.cbAllowCookies);
+		cbAllowIncognitoCookies = (CheckBox) findViewById(R.id.cbAllowIncognitoCookies);
 		cbThirdParty = (CheckBox) findViewById(R.id.cbThirdParty);
+		cbSyncHistory = (CheckBox) findViewById(R.id.cbBrowserHistory);
 
 		cbLocation.setChecked(mPreferences.getLocationEnabled());
 		cbSavePasswords.setChecked(mPreferences.getSavePasswordsEnabled());
@@ -89,10 +95,12 @@ public class PrivacySettingsActivity extends ThemableSettingsActivity {
 		cbClearHistoryExit.setChecked(mPreferences.getClearHistoryExitEnabled());
 		cbClearCookiesExit.setChecked(mPreferences.getClearCookiesExitEnabled());
 		cbThirdParty.setChecked(mPreferences.getBlockThirdPartyCookiesEnabled());
-
+		cbAllowCookies.setChecked(mPreferences.getCookiesEnabled());
+		cbAllowIncognitoCookies.setChecked(mPreferences.getIncognitoCookiesEnabled());
 		cbThirdParty.setEnabled(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
 
 		rLocation(rLocation);
+		initOnclickListeners();
 		rSavePasswords(rSavePasswords);
 		rClearCacheExit(rClearCacheExit);
 		rClearHistoryExit(rClearHistoryExit);
@@ -100,34 +108,18 @@ public class PrivacySettingsActivity extends ThemableSettingsActivity {
 		rClearCache(rClearCache);
 		rClearHistory(rClearHistory);
 		rClearCookies(rClearCookies);
-		rThirdParty(rThirdParty);
-		cbLocation(cbLocation);
-		cbSavePasswords(cbSavePasswords);
-		cbClearCacheExit(cbClearCacheExit);
-		cbClearHistoryExit(cbClearHistoryExit);
-		cbClearCookiesExit(cbClearCookiesExit);
-		cbThirdParty(cbThirdParty);
+
+        cbLocation.setOnCheckedChangeListener(mCheckListener);
+        cbAllowCookies.setOnCheckedChangeListener(mCheckListener);
+        cbAllowIncognitoCookies.setOnCheckedChangeListener(mCheckListener);
+        cbThirdParty.setOnCheckedChangeListener(mCheckListener);
+        cbSavePasswords.setOnCheckedChangeListener(mCheckListener);
+        cbClearCacheExit.setOnCheckedChangeListener(mCheckListener);
+        cbClearHistoryExit.setOnCheckedChangeListener(mCheckListener);
+        cbClearCookiesExit.setOnCheckedChangeListener(mCheckListener);
+		cbSyncHistory.setOnCheckedChangeListener(mCheckListener);
 
 		TextView syncHistory = (TextView) findViewById(R.id.isBrowserAvailable);
-
-		RelativeLayout layoutSyncHistory = (RelativeLayout) findViewById(R.id.rBrowserHistory);
-		final CheckBox cbSyncHistory = (CheckBox) findViewById(R.id.cbBrowserHistory);
-		layoutSyncHistory.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				cbSyncHistory.setChecked(!cbSyncHistory.isChecked());
-			}
-
-		});
-		cbSyncHistory.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				mPreferences.setSyncHistoryEnabled(isChecked);
-			}
-
-		});
 
 		if (!mSystemBrowser) {
 			cbSyncHistory.setChecked(false);
@@ -137,9 +129,55 @@ public class PrivacySettingsActivity extends ThemableSettingsActivity {
 			cbSyncHistory.setEnabled(true);
 			cbSyncHistory.setChecked(mPreferences.getSyncHistoryEnabled());
 			syncHistory.setText(getResources().getString(R.string.stock_browser_available));
+            findViewById(R.id.rBrowserHistory).setOnClickListener(new OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    cbSyncHistory.setChecked(!cbSyncHistory.isChecked());
+                }
+
+            });
 		}
 
 		messageHandler = new MessageHandler(mContext);
+	}
+
+	private class CheckListener implements OnCheckedChangeListener {
+
+		@Override
+		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+			switch (buttonView.getId()) {
+                case R.id.cbLocation:
+                    mPreferences.setLocationEnabled(isChecked);
+                    break;
+                case R.id.cbSavePasswords:
+                    mPreferences.setSavePasswordsEnabled(isChecked);
+                    break;
+                case R.id.cbAllowCookies:
+                    mPreferences.setCookiesEnabled(isChecked);
+                    break;
+                case R.id.cbAllowIncognitoCookies:
+                    mPreferences.setIncognitoCookiesEnabled(isChecked);
+                    break;
+                case R.id.cbThirdParty:
+                    mPreferences.setBlockThirdPartyCookiesEnabled(isChecked);
+                    break;
+				case R.id.cbBrowserHistory:
+					mPreferences.setSyncHistoryEnabled(isChecked);
+					break;
+                case R.id.cbClearCacheExit:
+                    mPreferences.setClearCacheExit(isChecked);
+                    break;
+                case R.id.cbClearHistoryExit:
+                    mPreferences.setClearHistoryExitEnabled(isChecked);
+                    break;
+                case R.id.cbClearCookiesExit:
+                    mPreferences.setClearCookiesExitEnabled(isChecked);
+                    break;
+
+			}
+		}
+
 	}
 
 	private static class MessageHandler extends Handler {
@@ -169,69 +207,27 @@ public class PrivacySettingsActivity extends ThemableSettingsActivity {
 		}
 	}
 
-	private void cbLocation(CheckBox view) {
-		view.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+	private void initOnclickListeners(){
 
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				mPreferences.setLocationEnabled(isChecked);
+        rAllowCookies.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cbAllowCookies.setChecked(!cbAllowCookies.isChecked());
+            }
+        });
+        rAllowIncognitoCookies.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cbAllowIncognitoCookies.setChecked(!cbAllowIncognitoCookies.isChecked());
+            }
+        });
+		rThirdParty.setOnClickListener(new OnClickListener() {
+			@Override public void onClick(View v) {
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+					cbThirdParty.setChecked(!cbThirdParty.isChecked());
+				}
+				else Utils.showToast(mContext, mContext.getString(R.string.available_lollipop));
 			}
-
-		});
-	}
-
-	private void cbSavePasswords(CheckBox view) {
-		view.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				mPreferences.setSavePasswordsEnabled(isChecked);
-			}
-
-		});
-	}
-
-	private void cbClearCacheExit(CheckBox view) {
-		view.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				mPreferences.setClearCacheExit(isChecked);
-			}
-
-		});
-	}
-
-	private void cbClearHistoryExit(CheckBox view) {
-		view.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				mPreferences.setClearHistoryExitEnabled(isChecked);
-			}
-
-		});
-	}
-
-	private void cbThirdParty(CheckBox view) {
-		view.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				mPreferences.setBlockThirdPartyCookiesEnabled(isChecked);
-			}
-
-		});
-	}
-
-	private void cbClearCookiesExit(CheckBox view) {
-		view.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				mPreferences.setClearCookiesExitEnabled(isChecked);
-			}
-
 		});
 	}
 
@@ -266,22 +262,6 @@ public class PrivacySettingsActivity extends ThemableSettingsActivity {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				cbClearCacheExit.setChecked(!cbClearCacheExit.isChecked());
-			}
-
-		});
-	}
-
-	private void rThirdParty(RelativeLayout view) {
-		view.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-					cbThirdParty.setChecked(!cbThirdParty.isChecked());
-				} else {
-					Utils.showToast(mContext, mContext.getString(R.string.available_lollipop));
-				}
 			}
 
 		});
@@ -378,12 +358,9 @@ public class PrivacySettingsActivity extends ThemableSettingsActivity {
 								})
 						.setNegativeButton(getResources().getString(R.string.action_no),
 								new DialogInterface.OnClickListener() {
-
 									@Override
 									public void onClick(DialogInterface arg0, int arg1) {
-
 									}
-
 								}).show();
 			}
 
@@ -395,24 +372,29 @@ public class PrivacySettingsActivity extends ThemableSettingsActivity {
 
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				clearCache();
+				AlertDialog.Builder builder = new AlertDialog.Builder(PrivacySettingsActivity.this); // dialog
+				builder.setTitle(getResources().getString(R.string.clear_cache));
+				builder.setMessage(getResources().getString(R.string.dialog_cache))
+						.setPositiveButton(getResources().getString(R.string.action_yes),
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface arg0, int arg1) {
+										WebView webView = new WebView(mContext);
+										webView.clearCache(true);
+									}
+								})
+						.setNegativeButton(getResources().getString(R.string.action_no),
+								new DialogInterface.OnClickListener() {
+									@Override public void onClick(DialogInterface arg0, int arg1) {}
+								}).show();
 			}
 
 		});
-
 	}
 
-	public void clearCache() {
-		WebView webView = new WebView(this);
-		webView.clearCache(true);
-		webView.destroy();
-		Utils.showToast(mContext, getResources().getString(R.string.message_cache_cleared));
-	}
 
-	@SuppressWarnings("deprecation")
 	public void clearHistory() {
-		deleteDatabase(HistoryDatabase.DatabaseName);
+		deleteDatabase(DatabaseManager.DatabaseName);
 		WebViewDatabase m = WebViewDatabase.getInstance(this);
 		m.clearFormData();
 		m.clearHttpAuthUsernamePassword();
@@ -430,10 +412,7 @@ public class PrivacySettingsActivity extends ThemableSettingsActivity {
 		messageHandler.sendEmptyMessage(1);
 	}
 
-	@SuppressWarnings("deprecation")
 	public void clearCookies() {
-		// TODO Break out web storage deletion into its own option/action
-		// TODO clear web storage for all sites that are visited in Incognito mode
 		WebStorage storage = WebStorage.getInstance();
 		storage.deleteAllData();
 		CookieManager c = CookieManager.getInstance();

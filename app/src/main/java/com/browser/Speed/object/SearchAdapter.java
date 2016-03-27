@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.annotation.SuppressLint;
@@ -37,7 +38,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.browser.Speed.R;
-import com.browser.Speed.database.HistoryDatabase;
+import com.browser.Speed.controller.ThreadExecutor;
+import com.browser.Speed.database.DatabaseManager;
 import com.browser.Speed.database.HistoryItem;
 import com.browser.Speed.preference.PreferenceManager;
 
@@ -48,7 +50,7 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
 	private List<HistoryItem> mSuggestions;
 	private List<HistoryItem> mFilteredList;
 	//private List<HistoryItem> mAllBookmarks;
-	private HistoryDatabase mDatabaseHandler;
+	private DatabaseManager mDatabaseHandler;
 	private final Context mContext;
 	private boolean mUseGoogle = true;
 	private boolean mIsExecuting = false;
@@ -62,27 +64,33 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
 	private SearchFilter mFilter;
 
 	public SearchAdapter(Context context, boolean dark) {
-		mDatabaseHandler = HistoryDatabase.getInstance(context.getApplicationContext());
+		mDatabaseHandler = DatabaseManager.getInstance(context.getApplicationContext());
 		mTheme = context.getTheme();
 		mFilteredList = new ArrayList<>();
 		mHistory = new ArrayList<>();
 		mBookmarks = new ArrayList<>();
 		mSuggestions = new ArrayList<>();
-		//mAllBookmarks = mBookmarkManager.getBookmarks(true);
 		mUseGoogle = PreferenceManager.getInstance().getGoogleSearchSuggestionsEnabled();
 		mContext = context;
 		mSearchSubtitle = mContext.getString(R.string.suggestion);
 		mDarkTheme = dark;
 		mIncognito = false;
-		Thread delete = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
+        try {
+            if (mFactory == null) {
+                mFactory = XmlPullParserFactory.newInstance();
+                mFactory.setNamespaceAware(true);
+            }
+            if (mXpp == null) {
+                mXpp = mFactory.newPullParser();
+            }
+        }
+        catch (XmlPullParserException e){}
+        //mAllBookmarks = mBookmarkManager.getBookmarks(true);
+		ThreadExecutor.execute(new Runnable() {
+			@Override public void run() {
 				deleteOldCacheFiles(mContext);
 			}
-
 		});
-		delete.start();
 	}
 
 	private void deleteOldCacheFiles(Context context) {
@@ -229,8 +237,9 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
 				return results;
 			}
 			String query = constraint.toString().toLowerCase(Locale.getDefault());
-			if (mUseGoogle && !mIncognito && !mIsExecuting) {
+			if (mUseGoogle && !mIsExecuting) {
 				new RetrieveSearchSuggestions().execute(query);
+                //ThreadExecutor.execute(mSuggestionsTask.search(query));
 			}
 
 //			int counter = 0;
@@ -249,9 +258,6 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
 //				}
 //
 //			}
-			if (mDatabaseHandler == null) {
-				mDatabaseHandler = HistoryDatabase.getInstance(mContext.getApplicationContext());
-			}
 			mHistory = mDatabaseHandler.findItemsContaining(constraint.toString());
 
 			results.count = 1;
@@ -277,10 +283,10 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
 		TextView mUrl;
 	}
 
-	private class RetrieveSearchSuggestions extends AsyncTask<String, Void, List<HistoryItem>> {
+	private XmlPullParserFactory mFactory;
+	private XmlPullParser mXpp;
 
-		private XmlPullParserFactory mFactory;
-		private XmlPullParser mXpp;
+	private class RetrieveSearchSuggestions extends AsyncTask<String, Void, List<HistoryItem>> {
 
 		@Override
 		protected List<HistoryItem> doInBackground(String... arg0) {
@@ -301,21 +307,13 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
 			InputStream fileInput = null;
 			try {
 				fileInput = new BufferedInputStream(new FileInputStream(cache));
-				if (mFactory == null) {
-					mFactory = XmlPullParserFactory.newInstance();
-					mFactory.setNamespaceAware(true);
-				}
-				if (mXpp == null) {
-					mXpp = mFactory.newPullParser();
-				}
 				mXpp.setInput(fileInput, ENCODING);
 				int eventType = mXpp.getEventType();
 				int counter = 0;
 				while (eventType != XmlPullParser.END_DOCUMENT) {
 					if (eventType == XmlPullParser.START_TAG && "suggestion".equals(mXpp.getName())) {
 						String suggestion = mXpp.getAttributeValue(null, "data");
-						filter.add(new HistoryItem(mSearchSubtitle + " \"" + suggestion + '"',
-								suggestion, R.drawable.ic_search));
+						filter.add(new HistoryItem(mSearchSubtitle + " \"" + suggestion + '"', suggestion, R.drawable.ic_search));
 						counter++;
 						if (counter >= 5) {
 							break;
@@ -323,15 +321,12 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
 					}
 					eventType = mXpp.next();
 				}
-			} catch (Exception e) {
-				return filter;
-			} finally {
+			}
+            catch (Exception e) { return filter; }
+            finally {
 				if (fileInput != null) {
-					try {
-						fileInput.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+					try { fileInput.close(); }
+                    catch (IOException e) { e.printStackTrace();}
 				}
 			}
 			return filter;
@@ -347,6 +342,70 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
 
 	}
 
+//    private Task mSuggestionsTask = new Task();
+//
+//	private class Task{
+//		public Runnable search(String query){
+//            mQuery = query;
+//            return runnable;
+//        }
+//
+//        List<HistoryItem> filter = new ArrayList<>();
+//
+//        private String mQuery;
+//        private Runnable runnable = new Runnable() {
+//            @Override
+//            public void setBitmap() {
+//                mIsExecuting = true;
+//                filter = new ArrayList<>();
+//                try {
+//                    mQuery = mQuery.replace(" ", "+");
+//                    URLEncoder.encode(mQuery, ENCODING);
+//                } catch (UnsupportedEncodingException e) {
+//                    e.printStackTrace();
+//                }
+//                File cache = downloadSuggestionsForQuery(mQuery);
+//                if (!cache.exists()) {
+//                    finish(filter);
+//                    return;
+//                }
+//                InputStream fileInput = null;
+//                try {
+//                    fileInput = new BufferedInputStream(new FileInputStream(cache));
+//                    mXpp.setInput(fileInput, ENCODING);
+//                    int eventType = mXpp.getEventType();
+//                    int counter = 0;
+//                    while (eventType != XmlPullParser.END_DOCUMENT) {
+//                        if (eventType == XmlPullParser.START_TAG && "suggestion".equals(mXpp.getName())) {
+//                            String suggestion = mXpp.getAttributeValue(null, "data");
+//                            filter.add(new HistoryItem(mSearchSubtitle + " \"" + suggestion + '"', suggestion, R.drawable.ic_search));
+//                            counter++;
+//                            if (counter >= 5) {
+//                                break;
+//                            }
+//                        }
+//                        eventType = mXpp.next();
+//                    }
+//                }
+//                catch (Exception e) { finish(filter); return; }
+//                finally {
+//                    if (fileInput != null) {
+//                        try { fileInput.close(); }
+//                        catch (IOException e) { e.printStackTrace();}
+//                    }
+//                }
+//                finish(filter);
+//            }
+//        };
+//
+//        private void finish(List<HistoryItem> result){
+//            mSuggestions = result;
+//            mFilteredList = getSuggestions();
+//            notifyDataSetChanged();
+//            mIsExecuting = false;
+//        }
+//	}
+
 	private File downloadSuggestionsForQuery(String query) {
 		File cacheFile = new File(mContext.getCacheDir(), query.hashCode() + ".sgg");
 		if (System.currentTimeMillis() - INTERVAL_DAY < cacheFile.lastModified()) {
@@ -356,8 +415,7 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
 			return cacheFile;
 		}
 		try {
-			URL url = new URL("http://google.com/complete/search?q=" + query
-					+ "&output=toolbar&hl=en");
+			URL url = new URL("http://google.com/complete/search?q=" + query + "&output=toolbar&hl=en");
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setDoInput(true);
 			connection.connect();
@@ -407,7 +465,7 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
 		int maxBookmarks = (suggestionsSize + historySize < 3) ? (5 - suggestionsSize - historySize)
 				: 2;
 
-		if (!mUseGoogle || mIncognito) {
+		if (!mUseGoogle) {
 			maxHistory++;
 			maxBookmarks++;
 		}
