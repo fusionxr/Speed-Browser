@@ -17,7 +17,7 @@
 
 <resources>
 
-    <string name="app_name">Lightning</string>
+    <string name="app_name">Speed Browser</string>
     <string name="drawer_open">Navigation-Drawer öffnen</string>
     <string name="drawer_close">Navigation-Drawer schließen</string>
     <string name="action_websearch">Websuche</string>
@@ -50,7 +50,7 @@
     <string name="settings_advanced">Erweitert</string>
     <string name="source">Quelltext</string>
     <string name="license">Lizenz</string>
-    <string name="github">github.com/anthonycr/Lightning-Browser</string>
+    <string name="github">github.com/fusionxr/Speed-Browser</string>
     <string name="apache">Apache License 2.0</string>
     <string name="title_activity_new_settings">Neue Einstellungen</string>
     <string name="action_settings">Einstellungen</string>
@@ -156,7 +156,7 @@
     <string name="google_suggestions">Suchvorschläge</string>
     <string name="powered_by_google">Unterstützt durch Google</string>
     <string name="title_adblock">Werbeblocker</string>
-    <string name="message_adblock">Der Werbeblocker ist nur in Lightning Browser+ verfügbar und kann im Google Play Store gekauft werden!</string>
+    <string name="message_adblock">Der Werbeblocker ist im Speed-Browser automatisch mit enthalten</string>
     <string name="enable_orbot">Orbot aktivieren</string>
     <string name="use_tor_prompt">Orbot ist installiert. Soll Tor verwendet werden?</string>
     <string name="install_orbot">Um Tor verwenden zu können, muss Orbot installiert sein!</string>
